@@ -98,7 +98,7 @@
           # note : there might be a smarter way to do this
         };
 
-	default = pkgs.linkFarmFromDrvs "godot" [ packages."${system}".godot packages."${system}".godot-cpp ];
+	  default = pkgs.linkFarmFromDrvs "godot" [ packages."${system}".godot packages."${system}".godot-cpp ];
       };
 
       devShells."${system}".default = with pkgs;
