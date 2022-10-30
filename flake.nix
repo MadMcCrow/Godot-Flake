@@ -68,7 +68,7 @@
           # produces "./result/godot-4.0/godot.bin
           installPhase = ''
             mkdir -p "$out/bin"
-            cp bin/godot.* $out/bin/godot.bin
+            cp bin/godot.* $out/bin/godot
           '';
         };
 
