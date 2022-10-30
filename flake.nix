@@ -1,59 +1,110 @@
 {
-    inputs = {
-        godot.url = "github:godotengine/godot";
-        godot.flake = false;
+  description = "the godot Engine, and the godot-cpp bindings for extensions";
+  inputs = {
+    godot = {
+      url = "github:godotengine/godot";
+      flake = false;
     };
-    outputs = {self, nixpkgs, ...}@inputs: 
-        let
-            system = "x86_64-linux";
-            pkgs = import nixpkgs{inherit system;};
-        in
-    rec{
-        packages."${system}" = with pkgs; {
-            default = stdenv.mkDerivation rec{
-                name = "godot";
-                src = inputs.godot;
-                nativeBuildInputs = [
-                    scons
-                    pkg-config
-                    vulkan-loader
-                    xorg.libX11
-                    xorg.libXcursor
-                    xorg.libXinerama
-                    xorg.libXrandr
-                    xorg.libXrender
-                    xorg.libXi
-                    xorg.libXext
-                    xorg.libXfixes
-                    udev
-                    systemd
-                    systemd.dev
-                    libpulseaudio
-                    freetype
-                    openssl
-                    alsa-lib
-                    libGLU
-                    zlib
-                    yasm
-                    autoPatchelfHook
-                ];
-                runtimeDependencies = [vulkan-loader libpulseaudio];
-                patchPhase = ''
-                    substituteInPlace platform/linuxbsd/detect.py --replace 'pkg-config xi ' 'pkg-config xi xfixes '
-                '';
-                enableParallelBuilding = true;
-                buildInputs = nativeBuildInputs;
-                
-                sconsFlags = "platform=linuxbsd";
-                installPhase = ''
-                    mkdir -p "$out/bin"
-                    cp bin/godot.* $out/bin/godot
-                '';
-            };
+    godot-cpp = {
+      url = "github:godotengine/godot-cpp";
+      flake = false;
+    };
+  };
+
+  outputs = { self, nixpkgs, godot, godot-cpp, ... }@inputs:
+    let
+      # only linux supported
+      system = "x86_64-linux";
+      # use nixpkgs
+      pkgs = import nixpkgs { inherit system; };
+      # libraries to run godot 4.
+      libs = with pkgs; [
+        vulkan-loader
+        xorg.libX11
+        xorg.libXcursor
+        xorg.libXinerama
+        xorg.libXrandr
+        xorg.libXrender
+        xorg.libXi
+        xorg.libXext
+        xorg.libXfixes
+        udev
+        systemd
+        systemd.dev
+        libpulseaudio
+        freetype
+        openssl
+        alsa-lib
+        libGLU
+        zlib
+        yasm
+      ];
+      # build tools
+      buildTools = with pkgs; [ scons pkg-config autoPatchelfHook bashInteractive patchelf gcc clang];
+      # scons flags
+      flags =  "platform=linux";
+
+    in rec {
+      packages."${system}" = with pkgs; {
+
+        # Godot Itself
+        godot = stdenv.mkDerivation {
+          pname = "godot";
+          version = "4.0";
+          src = inputs.godot;
+          # As a rule of thumb: Buildtools as nativeBuildInputs,
+          # libraries and executables you only need after the build as buildInputs
+          nativeBuildInputs = buildTools ++ libs;
+          buildInputs = libs;
+          # parallel building for faster compile
+          enableParallelBuilding = true;
+          # for now we only support linux
+          sconsFlags = flags;
+          runtimeDependencies = with pkgs; [ vulkan-loader libpulseaudio ];
+          patchPhase = ''
+            substituteInPlace platform/linuxbsd/detect.py --replace 'pkg-config xi ' 'pkg-config xi xfixes '
+          '';
+
+          # produces "./result/godot-4.0/godot.bin
+          installPhase = ''
+            mkdir -p "$out/bin"
+            cp bin/godot.* $out/bin/godot.bin
+          '';
         };
-        devShells."${system}".head = with pkgs; mkShell{
-            nativeBuildInputs = [patchelf nodePackages.http-server];
-            runtimeDependencies = nativeBuildInputs;
+
+        # Bindings for GD Extension
+        # maybe use : pkgs.buildFHSUserEnv
+          godot-cpp = stdenv.mkDerivation {
+          pname = "godot-cpp";
+          version = "4.0";
+          src = inputs.godot-cpp;
+          nativeBuildInputs = buildTools ++ libs;
+          buildInputs = libs;
+          sconsFlags = flags;
+          enableParallelBuilding = true;
+          patchPhase = ''
+            substituteInPlace SConstruct --replace 'env = Environment(tools=["default"])' 'env = Environment(tools=["default"], ENV={"PATH" : os.environ["PATH"]})'
+          '';
+          # produces "./result/godot-cpp-4.0/[bin gen src ...]
+          installPhase = ''
+            cp -r src $out/src
+            cp -r bin $out/bin
+            cp -r gen $out/gen
+            cp -r SConstruct $out/
+            cp -r binding_generator.py $out/
+            cp -r tools $out/
+            cp -r godot-headers $out/
+          '';
+          # note : there might be a smarter way to do this
+        };
+
+	default = pkgs.linkFarmFromDrvs "godot" [ packages."${system}".godot packages."${system}".godot-cpp ];
+      };
+
+      devShells."${system}".default = with pkgs;
+        mkShell {
+          nativeBuildInputs = buildTools;
+          runtimeDependencies = libs;
         };
 
     };
