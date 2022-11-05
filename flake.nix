@@ -13,6 +13,8 @@
 
   outputs = { self, nixpkgs, godot, godot-cpp, ... }@inputs:
     let
+      # this builds godot 4. we should instead read it from the input file
+      version = "4.0-beta";
       # only linux supported
       system = "x86_64-linux";
       # use nixpkgs
@@ -43,40 +45,60 @@
       buildTools = with pkgs; [ scons pkg-config autoPatchelfHook bashInteractive patchelf gcc clang];
       # scons flags
       flags =  "platform=linux";
+      # patch for godot
+      godot-patch = ''
+            substituteInPlace platform/linuxbsd/detect.py --replace 'pkg-config xi ' 'pkg-config xi xfixes '
+          '';
 
     in rec {
       packages."${system}" = with pkgs; {
 
-        # Godot Itself
+        # Godot Editor
         godot = stdenv.mkDerivation {
           pname = "godot";
-          version = "4.0";
+          version = version;
           src = inputs.godot;
           # As a rule of thumb: Buildtools as nativeBuildInputs,
           # libraries and executables you only need after the build as buildInputs
           nativeBuildInputs = buildTools ++ libs;
           buildInputs = libs;
-          # parallel building for faster compile
           enableParallelBuilding = true;
-          # for now we only support linux
           sconsFlags = flags;
           runtimeDependencies = with pkgs; [ vulkan-loader libpulseaudio ];
-          patchPhase = ''
-            substituteInPlace platform/linuxbsd/detect.py --replace 'pkg-config xi ' 'pkg-config xi xfixes '
-          '';
-
-          # produces "./result/godot-4.0/godot.bin
+          patchPhase = godot-patch;
           installPhase = ''
             mkdir -p "$out/bin"
             cp bin/godot.* $out/bin/godot
           '';
         };
 
+        # release template
+        # todo : install to a place we can use for export
+        godot-template-release = packages."${system}".godot.overrideAttrs (old: {
+          pname = "godot-template-release";
+          sconsFlags = flags + " tools=no target=template_release";
+          installPhase = ''
+            mkdir -p "$out/bin"
+            cp bin/* $out/bin/
+          '';
+        });
+
+        # debug templates
+        # todo : install to a place we can use for export
+        godot-template-debug = packages."${system}".godot.overrideAttrs (old: {
+          pname = "godot-template-debug";
+          sconsFlags = flags + " tools=no target=template_debug";
+          installPhase = ''
+            mkdir -p "$out/bin"
+            cp bin/* $out/bin/
+          '';
+        });
+
         # Bindings for GD Extension
         # maybe use : pkgs.buildFHSUserEnv
           godot-cpp = stdenv.mkDerivation {
           pname = "godot-cpp";
-          version = "4.0";
+          version = version;
           src = inputs.godot-cpp;
           nativeBuildInputs = buildTools ++ libs;
           buildInputs = libs;
@@ -98,7 +120,12 @@
           # note : there might be a smarter way to do this
         };
 
-	  default = pkgs.linkFarmFromDrvs "godot" [ packages."${system}".godot packages."${system}".godot-cpp ];
+	    default = pkgs.linkFarmFromDrvs "godot" [
+        packages."${system}".godot
+        packages."${system}".godot-cpp
+        packages."${system}".godot-template-release
+        packages."${system}".godot-template-debug
+        ];
       };
 
       devShells."${system}".default = with pkgs;
