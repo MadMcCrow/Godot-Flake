@@ -1,21 +1,39 @@
+#
+# Godot is a cross-platform open-source game engine written in C++ 
+# Godot-cpp is the bindings to build custom extensions
+# Godot-rust is one of the most common extensions for godot
+#
+# This flake build godot, the cpp bindings and the export templates
+#
 {
   description = "the godot Engine, and the godot-cpp bindings for extensions";
   inputs = {
+
+    # the godot Engine
     godot = {
       url = "github:godotengine/godot";
       flake = false;
     };
+
+    # the godot cpp bindings to build GDExtensions
     godot-cpp = {
       url = "github:godotengine/godot-cpp";
       flake = false;
     };
+
+    # the godot Rust GDExtension
+    godot-rust = {
+      url = "github:godot-rust/gdextension";
+      flake = false;
+    }
   };
 
+  # func
   outputs = { self, nixpkgs, godot, godot-cpp, ... }@inputs:
     let
       # this builds godot 4. we should instead read it from the input file
       version = "4.0-beta";
-      # only linux supported
+      # only linux supported, todo, support darwin
       system = "x86_64-linux";
       # use nixpkgs
       pkgs = import nixpkgs { inherit system; };
@@ -41,22 +59,23 @@
         zlib
         yasm
       ];
+
       # build tools
       buildTools = with pkgs; [ scons pkg-config autoPatchelfHook bashInteractive patchelf gcc clang];
       # scons flags
       flags =  "platform=linux";
-      # patch for godot
-      godot-patch = ''
-            substituteInPlace platform/linuxbsd/detect.py --replace 'pkg-config xi ' 'pkg-config xi xfixes '
-          '';
 
-    in rec {
+  # implementation
+  in rec {
+
+      #interface
+
       packages."${system}" = with pkgs; {
 
         # Godot Editor
         godot = stdenv.mkDerivation {
           pname = "godot";
-          version = version;
+          version = version; # builtins.readFile(input.godot + "./version.py");
           src = inputs.godot;
           # As a rule of thumb: Buildtools as nativeBuildInputs,
           # libraries and executables you only need after the build as buildInputs
@@ -65,7 +84,9 @@
           enableParallelBuilding = true;
           sconsFlags = flags;
           runtimeDependencies = with pkgs; [ vulkan-loader libpulseaudio ];
-          patchPhase = godot-patch;
+          patchPhase = ''
+            substituteInPlace platform/linuxbsd/detect.py --replace 'pkg-config xi ' 'pkg-config xi xfixes '
+          '';
           installPhase = ''
             mkdir -p "$out/bin"
             cp bin/godot.* $out/bin/godot
@@ -119,6 +140,19 @@
           '';
           # note : there might be a smarter way to do this
         };
+
+
+      godot-rust = stdenv.mkDerivation {
+          pname = "godot-rust";
+          version = version;
+          src = inputs.godot-rust;
+          nativeBuildInputs = buildTools ++ libs;
+          buildInputs = libs ++ (with pkgs;[
+            cargo
+            rustc 
+          ]);
+          enableParallelBuilding = true;
+      }
 
 	    default = pkgs.linkFarmFromDrvs "godot" [
         packages."${system}".godot
