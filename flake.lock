@@ -3,11 +3,11 @@
     "godot": {
       "flake": false,
       "locked": {
-        "lastModified": 1668941081,
-        "narHash": "sha256-sVFhyx/n+go4W7yuo0Z/MLaWQf5NkBf8JYfQcmF6q3g=",
+        "lastModified": 1669313061,
+        "narHash": "sha256-uwsrrmpd0f72eSub/4jKCTY32BQ88tdqgd9ySXqETpQ=",
         "owner": "godotengine",
         "repo": "godot",
-        "rev": "8aafcf9d2ae43e83636d60dbfd5f10e50fcdb324",
+        "rev": "a16d3625c3b2e82c88cb29e897523aa53f78ec7c",
         "type": "github"
       },
       "original": {
@@ -19,11 +19,11 @@
     "godot-cpp": {
       "flake": false,
       "locked": {
-        "lastModified": 1668598561,
-        "narHash": "sha256-F+K3au7ztVJUWKtCL0gsOpm3+WydJELBCbdII1pyzw4=",
+        "lastModified": 1669214597,
+        "narHash": "sha256-RtoWWrxc2CteVdSh/6Vz8wauvaw0doGfdbD4KcdfnJY=",
         "owner": "godotengine",
         "repo": "godot-cpp",
-        "rev": "6c2f9196d76b81de0ea0ff7480767c4c34336882",
+        "rev": "576bd172851932ba3db95fda8760b4f297c89efd",
         "type": "github"
       },
       "original": {
@@ -32,12 +32,28 @@
         "type": "github"
       }
     },
+    "godot-rust": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1668968325,
+        "narHash": "sha256-R4nvI+lddBG+VfPANHBU81V6EG1TF9ZYiwiDGXZscIQ=",
+        "owner": "godot-rust",
+        "repo": "gdextension",
+        "rev": "5a8a0007dc0464d0f2b8f4a0e74d3cfdd7c0bdbf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "godot-rust",
+        "repo": "gdextension",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1668765800,
-        "narHash": "sha256-rC40+/W6Hio7b/RsY8SvQPKNx4WqNcTgfYv8cUMAvJk=",
-        "path": "/nix/store/p6xfpp6i1a2h4ia3v81d1r414v6a603i-source",
-        "rev": "52b2ac8ae18bbad4374ff0dd5aeee0fdf1aea739",
+        "lastModified": 1668905981,
+        "narHash": "sha256-RBQa/+9Uk1eFTqIOXBSBezlEbA3v5OkgP+qptQs1OxY=",
+        "path": "/nix/store/0p5dnqxcz5zwkn24mjaysddx6j3q269i-source",
+        "rev": "690ffff026b4e635b46f69002c0f4e81c65dfc2e",
         "type": "path"
       },
       "original": {
@@ -49,6 +65,7 @@
       "inputs": {
         "godot": "godot",
         "godot-cpp": "godot-cpp",
+        "godot-rust": "godot-rust",
         "nixpkgs": "nixpkgs"
       }
     }
