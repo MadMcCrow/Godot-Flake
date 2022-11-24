@@ -25,7 +25,7 @@
     godot-rust = {
       url = "github:godot-rust/gdextension";
       flake = false;
-    }
+    };
   };
 
   # func
@@ -39,6 +39,7 @@
       pkgs = import nixpkgs { inherit system; };
       # libraries to run godot 4.
       libs = with pkgs; [
+        libGL
         vulkan-loader
         xorg.libX11
         xorg.libXcursor
@@ -152,7 +153,7 @@
             rustc 
           ]);
           enableParallelBuilding = true;
-      }
+      };
 
 	    default = pkgs.linkFarmFromDrvs "godot" [
         packages."${system}".godot
