@@ -1,0 +1,12 @@
+diff a/platform/linuxbsd/detect.py b/platform/linuxbsd/detect.py
+--- a/platform/linuxbsd/detect.py
++++ b/platform/linuxbsd/detect.py
+@@ -357,6 +358,8 @@
+ 
+     if env["opengl3"]:
+         env.Append(CPPDEFINES=["GLES3_ENABLED"])
++        env.ParseConfig("pkg-config glu --cflags --libs")
++        env.ParseConfig("pkg-config zlib --cflags --libs")
+ 
+     env.Append(LIBS=["pthread"])
+     
