@@ -62,7 +62,10 @@ let
   # godot version
   godotVersion = import ./version.nix {inherit system; };
 
-  # implementation
+  # godot custom.py
+  godotCustom = import ./custom.nix {inherit pkgs system;};
+
+# implementation
 in rec
 {
   # mkGodot
@@ -89,7 +92,8 @@ in rec
       sconsFlags = [
         ("platfom=" + godotVersion.platform)
         ("target=" + target)
-        (if tools then "tools=yes" else [ "tools=no" ])
+        (if tools then "tools=yes" else "tools=no")
+        (if godotCustom.useCustom then "profile=path/to/custom.py" else "")
       ];
 
       # apply the necessary patches
@@ -98,12 +102,6 @@ in rec
         ./patches/xfixes.patch # fix x11 libs
         ./patches/gl.patch     # fix gl libs
       ];
-      
-      # Not necessary : sconsFlags is "enough"
-      # preconfigure help for scons
-      #preConfigure = ''
-      #  sconsFlags+="${sconsFlags}"
-      #'';
             
       installPhase = ''
         mkdir -p "$out/bin"
@@ -131,7 +129,7 @@ in rec
       tools = false;
       installPhase = ''
         mkdir -p "$out/share/godot/templates/${oldAttrs.version}.stable"
-        cp bin/godot.x11.opt.64 $out/share/godot/templates/${oldAttrs.version}.stable/linux_x11_64_release
+        cp bin/godot.x11.opt.64 $out/share/godot/templates/${oldAttrs.version}.stable/linux_x11_64_${target}
       '';
       # https://docs.godotengine.org/en/stable/development/compiling/optimizing_for_size.html
       strip = (oldAttrs.stripAllList or [ ]) ++ [ "share/godot/templates" ];

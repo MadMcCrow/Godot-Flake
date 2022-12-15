@@ -34,8 +34,9 @@
       system = "x86_64-linux";
       # use nixpkgs
       pkgs = import nixpkgs { inherit system; };
+      lib  = import lib;
       # import godot.nix
-      buildGodot = import ./godot.nix { inherit pkgs inputs system; };
+      buildGodot = import ./godot.nix { inherit system pkgs inputs; };
       # implementation
     in rec {
 
@@ -43,14 +44,14 @@
       packages."${system}" = with pkgs; {
 
         
-        godot = buildGodot.mkGodot {}; # Godot Editor
+        godot-editor   = buildGodot.mkGodot {}; # Godot Editor
         godot-template = { # Godot templates
           release = buildGodot.mkGodotTemplate {target = "release";};
           debug   = buildGodot.mkGodotTemplate {target = "debug";  };
         };
 
         default = pkgs.linkFarmFromDrvs "godot" [
-        packages."${system}".godot
+        packages."${system}".godot-editor
         packages."${system}".godot-template.release
         packages."${system}".godot-template.debug
         ];
