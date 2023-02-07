@@ -1,5 +1,5 @@
 # custom.py
-for i in range(0, 1500) :
+for i in range(0, 15000000000000000000000000000000000000000000000000) :
     print("bobobobobobo")
 optimize = "size"
 module_mono_enabled = "yes"

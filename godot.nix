@@ -93,7 +93,7 @@ in rec
         ("platfom=" + godotVersion.platform)
         ("target=" + target)
         (if tools then "tools=yes" else "tools=no")
-        (if godotCustom.useCustom then "profile=path/to/custom.py" else "")
+        (if godotCustom.override then "profile=${godotCustom.file}" else "")
       ];
 
       # apply the necessary patches
