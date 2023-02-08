@@ -1,18 +1,11 @@
 diff --git a/platform/linuxbsd/detect.py b/platform/linuxbsd/detect.py
-index ac69f3806b..14acbf5c58 100644
+index 36e149f2b4..2c87bf09f5 100644
 --- a/platform/linuxbsd/detect.py
 +++ b/platform/linuxbsd/detect.py
-@@ -185,13 +185,14 @@ def configure(env: "Environment"):
+@@ -310,6 +310,14 @@ def configure(env: "Environment"):
  
      if env["x11"]:
-         # Only cflags, we dlopen the libraries.
--        env.ParseConfig("pkg-config x11 --cflags")
--        env.ParseConfig("pkg-config xcursor --cflags")
--        env.ParseConfig("pkg-config xinerama --cflags")
--        env.ParseConfig("pkg-config xext --cflags")
--        env.ParseConfig("pkg-config xrandr --cflags")
--        env.ParseConfig("pkg-config xrender --cflags")
--        env.ParseConfig("pkg-config xi --cflags")
+         env.Append(CPPDEFINES=["X11_ENABLED"])
 +        env.ParseConfig("pkg-config x11 --cflags --libs")
 +        env.ParseConfig("pkg-config xcursor --cflags --libs")
 +        env.ParseConfig("pkg-config xinerama --cflags --libs")
@@ -22,5 +15,5 @@ index ac69f3806b..14acbf5c58 100644
 +        env.ParseConfig("pkg-config xi --cflags --libs")
 +        env.ParseConfig("pkg-config xfixes --cflags --libs")
  
-     if env["touch"]:
-         env.Append(CPPDEFINES=["TOUCH_ENABLED"])
+     if env["vulkan"]:
+         env.Append(CPPDEFINES=["VULKAN_ENABLED"])
