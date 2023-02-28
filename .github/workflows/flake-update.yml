@@ -14,7 +14,7 @@ jobs:
     uses: MadMcCrow/flake-github-workflow/.github/workflows/update_flake.yml@main
     with:
       git_email: noe.perard+git@gmail.com
-      variables: ${{input.variables}}
+      variables: ${{variables}}
     secrets:
       CACHIX_SIGNING_KEY: ${{ secrets.CACHIX_SIGNING_KEY }}
 
