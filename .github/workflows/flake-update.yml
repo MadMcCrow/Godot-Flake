@@ -12,7 +12,5 @@ jobs:
     uses: MadMcCrow/flake-github-workflow/.github/workflows/main.yml@main
     with:
       git_email: noe.perard+git@gmail.com
-      pr_message: ':robot::snowflake: flake.lock : update'
-      commit_message: ':robot::snowflake: flake.lock : update'
     secrets:
       CACHIX_SIGNING_KEY: ${{ secrets.CACHIX_SIGNING_KEY }}
