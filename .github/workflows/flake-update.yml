@@ -1,4 +1,4 @@
-name: Flake Update
+name: 'Update Flake.Lock'
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
     - cron: '0 2 * * *'
 
 jobs:
-   call-workflow-passing-data:
+  call-external-flake-update:
     uses: MadMcCrow/flake-github-workflow/.github/workflows/main.yml@main
     with:
       git_email: noe.perard+git@gmail.com
