@@ -16,19 +16,3 @@ jobs:
       commit_message: ':robot::snowflake: flake.lock : update'
     secrets:
       CACHIX_SIGNING_KEY: ${{ secrets.CACHIX_SIGNING_KEY }}
-
-            inputs:
-        git_email:
-          required: true
-          type: string
-        pr_message:
-          default: ':robot::snowflake: flake.lock : update'
-          required: true
-          type: string
-        commit_message:
-          default: ':robot::snowflake: flake.lock : update'
-          required: true
-          type: string
-      secrets:
-        CACHIX_SIGNING_KEY:
-          required: true
