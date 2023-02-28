@@ -1,7 +1,6 @@
 # version.nix
 # get godot version
-{ system , ... }:
-{
+{ system, ... }: {
   # this builds godot 4. we should instead read it from the input file
   version = "4.0-beta";
   # todo : test darwin support

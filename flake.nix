@@ -34,9 +34,9 @@
       system = "x86_64-linux";
       # use nixpkgs
       pkgs = import nixpkgs { inherit system; };
-      lib  = import lib;
+      lib  = pkgs.lib;
       # import godot.nix
-      buildGodot = import ./godot.nix { inherit system pkgs inputs; };
+      buildGodot = import ./godot.nix { inherit lib pkgs system inputs; };
       # implementation
     in rec {
 

@@ -1,7 +1,8 @@
-diff a/platform/linuxbsd/detect.py b/platform/linuxbsd/detect.py
+diff --git a/platform/linuxbsd/detect.py b/platform/linuxbsd/detect.py
+index 3f713d2db3..b569db6e12 100644
 --- a/platform/linuxbsd/detect.py
 +++ b/platform/linuxbsd/detect.py
-@@ -357,6 +358,8 @@
+@@ -420,6 +420,8 @@ def configure(env: "Environment"):
  
      if env["opengl3"]:
          env.Append(CPPDEFINES=["GLES3_ENABLED"])
@@ -9,4 +10,4 @@ diff a/platform/linuxbsd/detect.py b/platform/linuxbsd/detect.py
 +        env.ParseConfig("pkg-config zlib --cflags --libs")
  
      env.Append(LIBS=["pthread"])
-     
+ 

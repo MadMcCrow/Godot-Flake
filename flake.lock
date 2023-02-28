@@ -3,11 +3,11 @@
     "godot": {
       "flake": false,
       "locked": {
-        "lastModified": 1675755360,
-        "narHash": "sha256-YkcPlvmqLWmBMO0+3sI+HDD0agSrlr4Qa/QANvepDT4=",
+        "lastModified": 1677530280,
+        "narHash": "sha256-XIzUKfrG5FTB9f9PonQbPB/NZDu5T6Di6cRBD4KylXs=",
         "owner": "godotengine",
         "repo": "godot",
-        "rev": "3f02cf7ced320f25ac5f4f72d7a57d98296bfcd1",
+        "rev": "0bc36c8954328a36295d50dc5f7722c9463f6f5c",
         "type": "github"
       },
       "original": {
@@ -19,11 +19,11 @@
     "godot-cpp": {
       "flake": false,
       "locked": {
-        "lastModified": 1675286707,
-        "narHash": "sha256-0+eCaJBvfSOToh84EOYyEULv3pT+/049VlLRCA5z7VA=",
+        "lastModified": 1677484528,
+        "narHash": "sha256-UFqRP7J1E4vnIpr4RWhzgTs7WilbyAvDTIaXnLjO6nY=",
         "owner": "godotengine",
         "repo": "godot-cpp",
-        "rev": "f2b97528c1369a6c40f3749817d00e4633afc43e",
+        "rev": "1f1a3730414316560ba7edc35f0d9cfa43a0c064",
         "type": "github"
       },
       "original": {
@@ -35,11 +35,11 @@
     "godot-rust": {
       "flake": false,
       "locked": {
-        "lastModified": 1675633906,
-        "narHash": "sha256-WwqxqakzZTYbeeQwD6vCrXvwDmFfwH0azhM+VNCs578=",
+        "lastModified": 1677449817,
+        "narHash": "sha256-4KRSAfd9Sp0dne7LaYVfhoK1pbsQLRWGLbc3Y+w+sAY=",
         "owner": "godot-rust",
         "repo": "gdextension",
-        "rev": "b2f75f8c4b6725c77eccbb7fb637d4570562ed63",
+        "rev": "f9db5d639993f1c5ae1404c0c2c6263ddd74ddea",
         "type": "github"
       },
       "original": {
@@ -50,10 +50,10 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1674641431,
-        "narHash": "sha256-qfo19qVZBP4qn5M5gXc/h1MDgAtPA5VxJm9s8RUAkVk=",
-        "path": "/nix/store/714kd9iay1f89hspfp62f6xhch67n733-source",
-        "rev": "9b97ad7b4330aacda9b2343396eb3df8a853b4fc",
+        "lastModified": 1677407201,
+        "narHash": "sha256-3blwdI9o1BAprkvlByHvtEm5HAIRn/XPjtcfiunpY7s=",
+        "path": "/nix/store/mzwhfnrlcij1iqvx52pjb8r699xdgvyi-source",
+        "rev": "7f5639fa3b68054ca0b062866dc62b22c3f11505",
         "type": "path"
       },
       "original": {
