@@ -13,8 +13,7 @@ jobs:
   update-flake-reuse:
     uses: MadMcCrow/flake-github-workflow/.github/workflows/update_flake.yml@main
     with:
-      git_email: noe.perard+git@gmail.com
-      nix_extra_config: ${{vars}}
+      nix_extra_config: ${{vars.EXTRA_NIX_CONFIG}}
     secrets:
       CACHIX_SIGNING_KEY: ${{ secrets.CACHIX_SIGNING_KEY }}
 
