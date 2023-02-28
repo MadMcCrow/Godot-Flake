@@ -11,7 +11,7 @@ jobs:
 
   # nix flake update
   update-flake-reuse:
-    uses: MadMcCrow/flake-github-workflow/.github/workflows/update-flake.yml@main
+    uses: MadMcCrow/flake-github-workflow/.github/workflows/update_flake.yml@main
     with:
       git_email: noe.perard+git@gmail.com
     secrets:
@@ -20,7 +20,7 @@ jobs:
   # pr
   pull-request-reuse:
     needs: [update-flake-reuse]
-    uses: MadMcCrow/flake-github-workflow/.github/workflows/pull-request.yml@main
+    uses: MadMcCrow/flake-github-workflow/.github/workflows/pull_request.yml@main
     with:
       commit:    'update : flake.lock'
       pr_title:  ':robot: flake update'
