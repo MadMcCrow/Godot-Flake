@@ -18,12 +18,12 @@ jobs:
       CACHIX_SIGNING_KEY: ${{ secrets.CACHIX_SIGNING_KEY }}
 
   # pr
-  pull-request-reuse:
-    needs: [update-flake-reuse]
-    uses: MadMcCrow/flake-github-workflow/.github/workflows/pull_request.yml@main
-    with:
-      commit:    'update : flake.lock'
-      pr_title:  ':robot: flake update'
+  #pull-request-reuse:
+  #  needs: [update-flake-reuse]
+  #  uses: MadMcCrow/flake-github-workflow/.github/workflows/pull_request.yaml@main
+  #  with:
+  #    commit:    'update : flake.lock'
+  #    pr_title:  ':robot: flake update'
 
   # clean up
   del_runs:
