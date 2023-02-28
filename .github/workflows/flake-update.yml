@@ -9,7 +9,7 @@ on:
 
 jobs:
   call-external-flake-update:
-    uses: MadMcCrow/flake-github-workflow/main.yml@main
+    uses: MadMcCrow/flake-github-workflow/.github/workflows/main.yml@main
     with:
       git_email: noe.perard+git@gmail.com
     secrets:
