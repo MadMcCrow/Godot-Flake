@@ -9,7 +9,7 @@ on:
 
 jobs:
    call-workflow-passing-data:
-    uses: MadMcCrow/flake-github-workflow/.github/workflows/flake-update.yml@main
+    uses: MadMcCrow/flake-github-workflow/.github/workflows/main.yml@main
     with:
       git_email: noe.perard+git@gmail.com
       pr_message: ':robot::snowflake: flake.lock : update'
