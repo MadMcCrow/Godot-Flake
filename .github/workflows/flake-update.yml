@@ -5,12 +5,34 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 3 * * *'
+    - cron: '0 2 * * *'
 
 jobs:
-  call-external-flake-update:
-    uses: MadMcCrow/flake-github-workflow/.github/workflows/main.yml@main
+
+  # nix flake update
+  update-flake-reuse:
+    uses: MadMcCrow/flake-github-workflow/.github/workflows/update-flake.yml@main
     with:
       git_email: noe.perard+git@gmail.com
     secrets:
       CACHIX_SIGNING_KEY: ${{ secrets.CACHIX_SIGNING_KEY }}
+
+  # pr
+  pull-request-reuse:
+    needs: [update-flake-reuse]
+    uses: MadMcCrow/flake-github-workflow/.github/workflows/pull-request.yml@main
+    with:
+      commit:    'update : flake.lock'
+      pr_title:  ':robot: flake update'
+
+  # clean up
+  del_runs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          keep_minimum_runs: 1
+          delete_run_by_conclusion_pattern: success
