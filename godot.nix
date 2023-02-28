@@ -8,13 +8,16 @@ let
   # godot version
   godotVersion = import ./version.nix { inherit system; };
   # godot custom.py
-  godotCustom = import ./custom.nix { inherit lib pkgs system; };
+  godotCustom = import ./custom.nix { inherit lib system; };
   # godot build libraries
-  godotLibraries = import ./libs.nix { inherit pkgs; };
+  godotLibraries = import ./libs.nix {
+    inherit pkgs;
+    use_x11 = true;
+    use_mono = false;
+  };
 
-# implementation
-in rec
-{
+  # implementation
+in rec {
   # mkGodot
   # function to male a godot build
   # TODO : add a custom.py to fill the sconsFlags
@@ -30,7 +33,7 @@ in rec
 
       # As a rule of thumb: Buildtools as nativeBuildInputs,
       # libraries and executables you only need after the build as buildInputs
-      nativeBuildInputs = godotLibraries.buildDep;
+      nativeBuildInputs = godotLibraries.buildDep ++ godotLibraries.buildTools;
       buildInputs = godotLibraries.runtimeDep;
       runtimeDependencies = godotLibraries.runtimeDep;
       enableParallelBuilding = true;

@@ -34,7 +34,7 @@
       system = "x86_64-linux";
       # use nixpkgs
       pkgs = import nixpkgs { inherit system; };
-      lib  = pkgs.lib;
+      lib = pkgs.lib;
       # import godot.nix
       buildGodot = import ./godot.nix { inherit lib pkgs system inputs; };
       # implementation
@@ -43,21 +43,19 @@
       #interface
       packages."${system}" = with pkgs; {
 
-        
-        godot-editor   = buildGodot.mkGodot {}; # Godot Editor
+        godot-editor = buildGodot.mkGodot { }; # Godot Editor
         godot-template = { # Godot templates
-          release = buildGodot.mkGodotTemplate {target = "release";};
-          debug   = buildGodot.mkGodotTemplate {target = "debug";  };
+          release = buildGodot.mkGodotTemplate { target = "release"; };
+          debug = buildGodot.mkGodotTemplate { target = "debug"; };
         };
 
         default = pkgs.linkFarmFromDrvs "godot" [
-        packages."${system}".godot-editor
-        packages."${system}".godot-template.release
-        packages."${system}".godot-template.debug
+          packages."${system}".godot-editor
+          packages."${system}".godot-template.release
+          packages."${system}".godot-template.debug
         ];
       };
       # dev-shell
-      devShells."${system}".default = with pkgs;
-        mkShell { };
-      };
+      devShells."${system}".default = with pkgs; mkShell { };
+    };
 }

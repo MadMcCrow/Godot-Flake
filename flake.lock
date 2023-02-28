@@ -3,11 +3,11 @@
     "godot": {
       "flake": false,
       "locked": {
-        "lastModified": 1677530280,
-        "narHash": "sha256-XIzUKfrG5FTB9f9PonQbPB/NZDu5T6Di6cRBD4KylXs=",
+        "lastModified": 1677587881,
+        "narHash": "sha256-0C0dFzb0MyA5SpOWBBriXFE5OW/82mvWT+wHL/MHQ4A=",
         "owner": "godotengine",
         "repo": "godot",
-        "rev": "0bc36c8954328a36295d50dc5f7722c9463f6f5c",
+        "rev": "491ded18983a4ae963ce9c29e8df5d5680873ccb",
         "type": "github"
       },
       "original": {
