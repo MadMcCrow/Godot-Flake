@@ -14,7 +14,7 @@ nix build
 ```
 to run godot :
 ```
-nix run .#godot
+nix run .#godot-editor
 ```
 to update the godot version
 ```
