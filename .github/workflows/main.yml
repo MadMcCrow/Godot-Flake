@@ -15,12 +15,6 @@ jobs:
     with:
       cachix-repository: godot-flake
       jq-command:  '.packages["x86_64-linux"] | keys - ["default"]'
-      nix_extra_config: | # ${{vars.EXTRA_NIX_CONFIG}}
-          auto-optimise-store = true
-          access-tokens = github.com=${{ github.token }}
-          experimental-features = nix-command flakes
-          substituters = https://cache.nixos.org/ https://nix-community.cachix.org
-          trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
     secrets:
       CACHIX_SIGNING_KEY: ${{ secrets.CACHIX_SIGNING_KEY }}
 
