@@ -10,7 +10,7 @@ on:
 jobs:
 
   # update flake inputs
-  update_flake:
+  update-flake:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -27,12 +27,16 @@ jobs:
           name: flake_lock
           path: flake.lock
 
-  # nix flake update
   update-flake-reuse:
+    needs: [update-flake]
     uses: MadMcCrow/flake-github-workflow/.github/workflows/update_flake.yml@main
+
+
+  # nix flake update
+  build-flake-reuse:
+    needs: [update-flake]
+    uses: MadMcCrow/flake-github-workflow/.github/workflows/build_flake.yml@main
     with:
-      git_email: noe.perard_git@gmail.com
-      git_user:  github-action-bot
       cachix-repository: godot-flake
       jq-command:  '.packages["x86_64-linux"] | keys - ["default"]'
     secrets:
