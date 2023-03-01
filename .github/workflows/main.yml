@@ -36,3 +36,5 @@ jobs:
   clean-workflow-reuse:
     # needs: [ update-flake-reuse]
     uses: MadMcCrow/flake-github-workflow/.github/workflows/clean_workflows.yml@main
+    with:
+      repository: ${{ github.repository }}
