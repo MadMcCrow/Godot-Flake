@@ -13,6 +13,8 @@ jobs:
   update-flake-reuse:
     uses: MadMcCrow/flake-github-workflow/.github/workflows/update_flake.yml@main
     with:
+      git_email: noe.perard_git@gmail.com
+      git_user:  github-action-bot
       cachix-repository: godot-flake
       jq-command:  '.packages["x86_64-linux"] | keys - ["default"]'
     secrets:
