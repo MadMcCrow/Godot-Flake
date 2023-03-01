@@ -44,15 +44,13 @@
       packages."${system}" = with pkgs; {
 
         godot-editor = buildGodot.mkGodot { }; # Godot Editor
-        godot-template = { # Godot templates
-          release = buildGodot.mkGodotTemplate { target = "release"; };
-          debug = buildGodot.mkGodotTemplate { target = "debug"; };
-        };
+        godot-template-release = buildGodot.mkGodotTemplate { target = "release"; };
+        godot-template-debug = buildGodot.mkGodotTemplate { target = "debug"; };
 
         default = pkgs.linkFarmFromDrvs "godot" [
           packages."${system}".godot-editor
-          packages."${system}".godot-template.release
-          packages."${system}".godot-template.debug
+          packages."${system}".godot-template-release
+          packages."${system}".godot-template-debug
         ];
       };
       # dev-shell

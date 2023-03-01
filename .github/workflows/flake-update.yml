@@ -13,6 +13,8 @@ jobs:
   update-flake-reuse:
     uses: MadMcCrow/flake-github-workflow/.github/workflows/update_flake.yml@main
     with:
+      cachix-repository: godot-flake
+      jq-command:  '.packages["x86_64-linux"] | keys - ["default"]'
       nix_extra_config: ${{vars.EXTRA_NIX_CONFIG}}
     secrets:
       CACHIX_SIGNING_KEY: ${{ secrets.CACHIX_SIGNING_KEY }}
