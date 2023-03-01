@@ -27,9 +27,10 @@ jobs:
           name: flake_lock
           path: flake.lock
 
-  update-flake-reuse:
-    needs: [update-flake]
-    uses: MadMcCrow/flake-github-workflow/.github/workflows/update_flake.yml@main
+  # does not work
+  #update-flake-reuse:
+  #  needs: [update-flake]
+  #  uses: MadMcCrow/flake-github-workflow/.github/workflows/update_flake.yml@main
 
 
   # nix flake update
