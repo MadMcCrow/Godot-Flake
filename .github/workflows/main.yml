@@ -43,16 +43,16 @@ jobs:
       CACHIX_SIGNING_KEY: ${{ secrets.CACHIX_SIGNING_KEY }}
 
   # pr
-  #pull-request-reuse:
-  #  needs: [update-flake-reuse]
-  #  uses: MadMcCrow/flake-github-workflow/.github/workflows/pull_request.yaml@main
-  #  with:
-  #    commit:    'update : flake.lock'
-  #    pr_title:  ':robot: flake update'
+  pull-request-reuse:
+    needs: [build-flake-reuse]
+    uses: MadMcCrow/flake-github-workflow/.github/workflows/pull_request.yaml@main
+    with:
+      commit:    'update : flake.lock'
+      pr_title:  ':robot: flake update'
 
   # clean up (do it at the end)
   clean-workflow-reuse:
-    # needs: [ update-flake-reuse]
+    needs: [pull-request-reuse]
     uses: MadMcCrow/flake-github-workflow/.github/workflows/clean_workflows.yml@main
     with:
       repository: ${{ github.repository }}
