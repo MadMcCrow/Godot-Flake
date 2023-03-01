@@ -15,7 +15,12 @@ jobs:
     with:
       cachix-repository: godot-flake
       jq-command:  '.packages["x86_64-linux"] | keys - ["default"]'
-      nix_extra_config: ${{vars.EXTRA_NIX_CONFIG}}
+      nix_extra_config: | # ${{vars.EXTRA_NIX_CONFIG}}
+          auto-optimise-store = true
+          access-tokens = github.com=${{ github.token }}
+          experimental-features = nix-command flakes
+          substituters = https://cache.nixos.org/ https://nix-community.cachix.org
+          trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
     secrets:
       CACHIX_SIGNING_KEY: ${{ secrets.CACHIX_SIGNING_KEY }}
 
@@ -27,14 +32,7 @@ jobs:
   #    commit:    'update : flake.lock'
   #    pr_title:  ':robot: flake update'
 
-  # clean up
-  del_runs:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Delete workflow runs
-        uses: Mattraks/delete-workflow-runs@v2
-        with:
-          token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          keep_minimum_runs: 1
-          delete_run_by_conclusion_pattern: success
+ # clean up (do it at the end)
+ clean-workflow-reuse:
+    needs: [ update-flake-reuse]
+    uses: MadMcCrow/flake-github-workflow/.github/workflows/clean-workflows.yml@main
