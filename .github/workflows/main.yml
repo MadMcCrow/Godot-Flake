@@ -32,7 +32,7 @@ jobs:
   #    commit:    'update : flake.lock'
   #    pr_title:  ':robot: flake update'
 
- # clean up (do it at the end)
- clean-workflow-reuse:
+  # clean up (do it at the end)
+  clean-workflow-reuse:
     needs: [ update-flake-reuse]
     uses: MadMcCrow/flake-github-workflow/.github/workflows/clean-workflows.yml@main
