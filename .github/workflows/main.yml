@@ -17,7 +17,7 @@ jobs:
       - name: setup-nix
         uses: cachix/install-nix-action@v19
         with:
-          extra_nix_config: ${{inputs.nix_extra_config}}
+          extra_nix_config: ${{vars.NIX_EXTRA_CONFIG}}
           install_url: https://releases.nixos.org/nix/nix-2.12.0/install
       - name: Update the flake
         run: nix flake update
@@ -27,33 +27,94 @@ jobs:
           name: flake_lock
           path: flake.lock
 
-  # does not work
-  #update-flake-reuse:
-  #  needs: [update-flake]
-  #  uses: MadMcCrow/flake-github-workflow/.github/workflows/update_flake.yml@main
+ # generate JSONs for future builds and checks
+  generate_matrix:
+    runs-on: ubuntu-20.04
+    outputs:
+      matrix: ${{ steps.gen_matrix.outputs.vector }}
+    steps :
+      - uses: actions/checkout@v3
+      - name: setup-nix
+        uses: cachix/install-nix-action@v19
+        with:
+          extra_nix_config: ${{vars.NIX_EXTRA_CONFIG}}
+          install_url: https://releases.nixos.org/nix/nix-2.12.0/install
+      - name: Generate flake.json
+        run: |
+          nix flake show --json > flake.json
+      - id: gen_matrix
+        run: |
+          vector=$(jq -c '.packages["x86_64-linux"] | keys - ["default"]' < flake.json)
+          echo "vector=$vector" >> $GITHUB_OUTPUT
 
-
-  # nix flake update
-  build-flake-reuse:
-    needs: [update-flake]
-    uses: MadMcCrow/flake-github-workflow/.github/workflows/build_flake.yml@main
-    with:
-      cachix-repository: godot-flake
-      jq-command:  '.packages["x86_64-linux"] | keys - ["default"]'
-    secrets:
-      CACHIX_SIGNING_KEY: ${{ secrets.CACHIX_SIGNING_KEY }}
+  # build new flake 
+  build_flake:
+    runs-on: ubuntu-20.04
+    needs: [generate_matrix]
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        config: ${{fromJson(needs.generate_matrix.outputs.matrix)}}
+    steps:
+      - uses: actions/checkout@v3
+      - name: setup-nix
+        uses: cachix/install-nix-action@v19
+        with:
+          extra_nix_config: ${{vars.NIX_EXTRA_CONFIG}}
+          install_url: https://releases.nixos.org/nix/nix-2.12.0/install
+      - name: Set up cachix
+        uses: cachix/cachix-action@v11
+        with:
+          name: godot-flake
+          signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
+          pathsToPush: result
+      - name: Restore flake.lock
+        uses: actions/download-artifact@v3
+        with:
+          name: flake_lock
+      - name: Build everything
+        run: |
+          nix build .#${{ matrix.config }}
 
   # pr
-  pull-request-reuse:
-    needs: [build-flake-reuse]
-    uses: MadMcCrow/flake-github-workflow/.github/workflows/pull_request.yaml@main
-    with:
-      commit:    'update : flake.lock'
-      pr_title:  ':robot: flake update'
+  push_update:
+    runs-on: ubuntu-20.04
+    permissions: write-all
+    steps:
+    - uses: actions/checkout@v3
+    - name: Restore flake.lock
+      uses: actions/download-artifact@v3
+      with:
+        name: flake_lock
+    - name: Set up git
+      run: |
+        git config user.email "noe.perard+git@gmail.com"
+        git config user.name "Git Bot"
+    - name: Create and merge PR
+      run: |
+          git switch -c updates-${{ github.run_id }}
+          git commit -am "Automated : Flake update"
+          git push -u origin updates-${{ github.run_id }}
+          PR=$(gh pr create \
+            --assignee MadMcCrow \
+            --base main \
+            --body "Automated Flake update by Github Action" \
+            --fill \
+            --label bot \
+            --title "Auto update $(date -I)")
+          gh pr merge $PR --merge --delete-branch
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
 
   # clean up (do it at the end)
-  clean-workflow-reuse:
-    needs: [pull-request-reuse]
-    uses: MadMcCrow/flake-github-workflow/.github/workflows/clean_workflows.yml@main
-    with:
-      repository: ${{ github.repository }}
+  del_old_runs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{github.repository}}
+          keep_minimum_runs: 3
+          retain_days: 1 # delete all but the latest, only keeping count
