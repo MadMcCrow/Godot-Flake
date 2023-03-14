@@ -32,8 +32,8 @@ in rec {
 
     enableParallelBuilding = true;
     patchPhase = ''
-      substituteInPlace SConstruct --replace 'env = Environment(tools=["default"])' 'env = Environment(tools=["default"], ENV={"PATH" : os.environ["PATH"]})'
-    '';
+            substituteInPlace SConstruct --replace 'env = Environment(tools=["default"], PLATFORM="")' 'env = Environment(tools=["default"], ENV={"PATH" : os.environ["PATH"]})'
+          '';
     # produces "./result/godot-cpp-4.0/[bin gen src ...]
     installPhase = ''
       cp -r src $out/src
