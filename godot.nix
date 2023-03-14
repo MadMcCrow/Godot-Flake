@@ -20,7 +20,6 @@ let
 in rec {
   # mkGodot
   # function to male a godot build
-  # TODO : add a custom.py to fill the sconsFlags
   mkGodot = { name ? "godot", target ? "editor", tools ? true, ... }:
     stdenv.mkDerivation {
       # use variables from args

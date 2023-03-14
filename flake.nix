@@ -19,12 +19,6 @@
       url = "github:godotengine/godot-cpp";
       flake = false;
     };
-
-    # the godot Rust GDExtension
-    godot-rust = {
-      url = "github:godot-rust/gdextension";
-      flake = false;
-    };
   };
 
   # func
@@ -36,7 +30,8 @@
       pkgs = import nixpkgs { inherit system; };
       lib = pkgs.lib;
       # import godot.nix
-      buildGodot = import ./godot.nix { inherit lib pkgs system inputs; };
+      buildGodot = import ./godot.nix      { inherit lib pkgs system inputs; };
+      buildGdExt = import ./extensions.nix { inherit lib pkgs system inputs; };
       # implementation
     in rec {
 
@@ -46,11 +41,13 @@
         godot-editor = buildGodot.mkGodot { }; # Godot Editor
         godot-template-release = buildGodot.mkGodotTemplate { target = "release"; };
         godot-template-debug = buildGodot.mkGodotTemplate { target = "debug"; };
+        godot-cpp =  buildGdExt.mkGodotCpp {};
 
         default = pkgs.linkFarmFromDrvs "godot" [
           packages."${system}".godot-editor
           packages."${system}".godot-template-release
           packages."${system}".godot-template-debug
+          packages."${system}".godot-cpp
         ];
       };
       # dev-shell

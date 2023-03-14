@@ -32,22 +32,6 @@
         "type": "github"
       }
     },
-    "godot-rust": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1677449817,
-        "narHash": "sha256-4KRSAfd9Sp0dne7LaYVfhoK1pbsQLRWGLbc3Y+w+sAY=",
-        "owner": "godot-rust",
-        "repo": "gdextension",
-        "rev": "f9db5d639993f1c5ae1404c0c2c6263ddd74ddea",
-        "type": "github"
-      },
-      "original": {
-        "owner": "godot-rust",
-        "repo": "gdextension",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1677407201,
@@ -65,7 +49,6 @@
       "inputs": {
         "godot": "godot",
         "godot-cpp": "godot-cpp",
-        "godot-rust": "godot-rust",
         "nixpkgs": "nixpkgs"
       }
     }
