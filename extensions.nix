@@ -17,7 +17,7 @@ in rec {
   #  Godot-cpp bindings : they are required to
   #  valid values for target are: ('editor', 'template_release', 'template_debug'
   #
-  mkGodotCpp = {target ? "editor"} : stdenv.mkDerivation {
+  mkGodotCPP = {target ? "editor", ...} : stdenv.mkDerivation {
     pname = "godot-cpp";
     version = godotVersion.version;
     src = inputs.godot-cpp;
@@ -36,42 +36,34 @@ in rec {
           '';
     # produces "./result/godot-cpp-4.0/[bin gen src ...]
     installPhase = ''
+      ls -la ./ >> $out/folders
       cp -r src $out/src
       cp -r bin $out/bin
       cp -r gen $out/gen
       cp -r SConstruct $out/
       cp -r binding_generator.py $out/
       cp -r tools $out/
-      cp -r godot-headers $out/
     '';
+  };
+
+  buildExt = {extName , version, src , target } : stdenv.mkDerivation
+  {
+    pname = extName;
+    version = version;
+    src = src;
+    nativeBuildInputs = godotLibraries.buildTools ++ godotLibraries.buildDep ++ [mkGodotCPP{target=target;}];
+    buildInputs = godotLibraries.runtimeDependencies;
+    runtimeDependencies = godotLibraries.runtimeDependencies;
+    sconsFlags = godotCustom.customSconsFlags;
+    enableParallelBuilding = true;
   };
 
   # TODO : build demo !
-  demo = stdenv.mkDerivation {
-    pname = "godot-cpp";
+  demo = buildExt {
+    extName = "godot-cpp-demo";
     version = godotVersion.version;
-    src = inputs.godot-cpp.test;
-    nativeBuildInputs = godotLibraries.buildTools ++ godotLibraries.buildDep ++ [godot-cpp];
-    buildInputs = godotLibraries.runtimeDependencies;
-    runtimeDependencies = godotLibraries.runtimeDependencies;
-    sconsFlags = godotCustom.customSconsFlags;
-    enableParallelBuilding = true;
-    patchPhase = ''
-      substituteInPlace SConstruct --replace 'env = Environment(tools=["default"])' 'env = Environment(tools=["default"], ENV={"PATH" : os.environ["PATH"]})'
-    '';
-    #todo : installPhase = '' '';
-  };
-
-  buildExt = {pname , version } : stdenv.mkDerivation
-  {
-    pname = "godot-cpp";
-    version = godotVersion.version;
-    src = inputs.godot-cpp;
-    nativeBuildInputs = godotLibraries.buildTools ++ godotLibraries.buildDep ++ [godot-cpp];
-    buildInputs = godotLibraries.runtimeDependencies;
-    runtimeDependencies = godotLibraries.runtimeDependencies;
-    sconsFlags = godotCustom.customSconsFlags;
-    enableParallelBuilding = true;
-  };
+    src = inputs.godot-cpp.demo;
+    target = "editor";
+    };
 
 }

@@ -38,16 +38,24 @@
       #interface
       packages."${system}" = with pkgs; {
 
+        # godot engine
         godot-editor = buildGodot.mkGodot { }; # Godot Editor
         godot-template-release = buildGodot.mkGodotTemplate { target = "release"; };
         godot-template-debug = buildGodot.mkGodotTemplate { target = "debug"; };
-        godot-cpp =  buildGdExt.mkGodotCpp {};
 
+        # godot extension
+        godot-cpp-editor =  buildGdExt.mkGodotCPP{ target = "editor";};
+        godot-cpp-debug =  buildGdExt.mkGodotCPP{ target = "template_debug";};
+        godot-cpp-release =  buildGdExt.mkGodotCPP{ target = "template_release";};
+
+        # all packages are build
         default = pkgs.linkFarmFromDrvs "godot" [
           packages."${system}".godot-editor
           packages."${system}".godot-template-release
           packages."${system}".godot-template-debug
-          packages."${system}".godot-cpp
+          packages."${system}".godot-cpp-editor
+          packages."${system}".godot-cpp-debug
+          packages."${system}".godot-cpp-release
         ];
       };
       # dev-shell
