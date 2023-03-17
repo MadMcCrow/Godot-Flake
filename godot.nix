@@ -16,14 +16,20 @@ let
     use_mono = false;
   };
 
-  # implementation
-in rec {
-  # mkGodot
-  # function to male a godot build
-  mkGodot = { name ? "godot", target ? "editor", tools ? true, ... }:
-    stdenv.mkDerivation {
+  # default installation for godot engine
+  defaultInstall = ''
+        mkdir -p "$out/bin"
+        cp bin/godot.* $out/bin/godot-${godotVersion.version}-${target}
+      '';
+  
+  # function to make a godot derivation
+  mkGodotBase = {pname ? "godot", target ? "editor", tools ? true, installPhase ? defaultInstall, strip ? []} : stdenv.mkDerivation {
+
+      # pass parameters
+      inherit installPhase strip;
+
       # use variables from args
-      pname = name;
+      name = (lib.strings.concatStringsSep "-" [pname target godotVersion.version]);
       src = inputs.godot;
 
       # get godot version from version modules
@@ -52,34 +58,43 @@ in rec {
         ./patches/gl.patch # fix gl libs
       ];
 
-      installPhase = ''
-        mkdir -p "$out/bin"
-        cp bin/godot.* $out/bin/godot
-        mkdir -p "$out"/share/{applications,icons/hicolor/scalable/apps}
-        cp misc/dist/linux/org.godotengine.Godot.desktop "$out/share/applications/"
-        substituteInPlace "$out/share/applications/org.godotengine.Godot.desktop" \
-          --replace "Exec=godot" "Exec=$out/bin/godot"
-        cp icon.svg "$out/share/icons/hicolor/scalable/apps/godot.svg"
-        cp icon.png "$out/share/icons/godot.png"
-        GODOT4_BIN=out/bin/godot
-      '';
-
       # some extra info
       meta = with lib; {
         homepage = pkgs.godot.meta.homepage;
         description = pkgs.godot.meta.description;
         license = licenses.mit;
       };
+  };
+
+# implementation
+in {
+  # mkGodot
+  # function to male a godot build
+  mkGodot = {target ? "editor"}: mkGodotBase {
+      inherit target;
+      tools = true;
+      installPhase = ''
+        mkdir -p "$out/bin"
+        cp bin/godot.* $out/bin/godot-${godotVersion.version}-${target}
+        mkdir -p "$out"/share/{applications,icons/hicolor/scalable/apps}
+        cp misc/dist/linux/org.godotengine.Godot.desktop "$out/share/applications/"
+        substituteInPlace "$out/share/applications/org.godotengine.Godot.desktop" \
+          --replace "Exec=godot" "Exec=$out/bin/godot"
+        cp icon.svg "$out/share/icons/hicolor/scalable/apps/godot.svg"
+        cp icon.png "$out/share/icons/godot.png"
+      '';
+      # Do not set GODOT4_BIN=out/bin/godot-${target} because we may build templates toos
     };
 
   # build a template
-  mkGodotTemplate = { ... }:
-    mkGodot {
-      pname = "godot-template" + target;
+  mkGodotTemplate = {target ? "debug"} : mkGodotBase {
+      inherit target;
+      pname = "godot-template";
       tools = false;
       installPhase = ''
-        mkdir -p "$out/share/godot/templates/${oldAttrs.version}.stable"
-        cp bin/godot.x11.opt.64 $out/share/godot/templates/${oldAttrs.version}.stable/linux_x11_64_${target}
+        ls -la ./ >> $out/folders
+        mkdir -p "$out/share/godot/templates/${godotVersion.version}"
+        cp bin/godot.* $out/share/godot/templates/${godotVersion.version}/${godotVersion.platform}-${target}
       '';
       # https://docs.godotengine.org/en/stable/development/compiling/optimizing_for_size.html
       strip = (oldAttrs.stripAllList or [ ]) ++ [ "share/godot/templates" ];

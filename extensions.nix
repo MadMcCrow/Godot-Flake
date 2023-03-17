@@ -21,9 +21,10 @@ in rec {
   #  Godot-cpp bindings : they are required to
   #  valid values for target are: ('editor', 'template_release', 'template_debug'
   #
-  mkGodotCPP = { target ? "editor", ... }:
+  mkGodotCPP = { pname ? "godot-cpp", target ? "editor", ... }:
     stdenv.mkDerivation {
-      pname = "godot-cpp";
+      # make name:
+      name = (lib.strings.concatStringsSep "-" [pname target godotVersion.version]);
       version = godotVersion.version;
       src = inputs.godot-cpp;
       nativeBuildInputs = nativeBuildInputs;
@@ -41,6 +42,7 @@ in rec {
       ];
      
       # produces "./result/godot-cpp-4.0/[bin gen src ...]
+      # todo : split outputs to only get what you need
       installPhase = ''
         ls -la ./ >> $out/folders
         cp -r src $out/src
@@ -48,6 +50,7 @@ in rec {
         cp -r gen $out/gen
         cp -r SConstruct $out/
         cp -r binding_generator.py $out/
+        cp -r gdextension $out/
         cp -r tools $out/
       '';
     };
@@ -64,10 +67,11 @@ in rec {
       nativeBuildInputs = nativeBuildInputs  ++ [godot-cpp];
       buildInputs = buildInputs;
       runtimeDependencies = runtimeDependencies;
-      sconsFlags = godotCustom.customSconsFlags;
+      sconsFlags = [("target=" + target)];
       enableParallelBuilding = true;
       patchPhase = ''
         substituteInPlace SConstruct --replace 'env = SConscript("../SConstruct")' 'env = SConscript("${godot-cpp}/SConstruct")'
+        echo "${godot-cpp}"
       '';
     };
 }

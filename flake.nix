@@ -66,7 +66,7 @@
           packages."${system}".godot-cpp-release
           # demo to prove we can build gd-extensions
           # this fails 
-          packages."${system}".godot-cpp-demo
+          # packages."${system}".godot-cpp-demo
         ];
       };
       # dev-shell
