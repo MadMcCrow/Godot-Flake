@@ -47,7 +47,6 @@ in rec {
       ] ++ godotCustom.customSconsFlags;
 
       # apply the necessary patches
-      # TODO : take EVERYTHING in the patches folder
       patches = [
         ./patches/xfixes.patch # fix x11 libs
         ./patches/gl.patch # fix gl libs

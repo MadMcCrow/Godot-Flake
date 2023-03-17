@@ -34,9 +34,12 @@ in rec {
         ++ godotCustom.customSconsFlags;
 
       enableParallelBuilding = true;
-      patchPhase = ''
-        substituteInPlace SConstruct --replace 'env = Environment(tools=["default"], PLATFORM="")' 'env = Environment(tools=["default"], ENV={"PATH" : os.environ["PATH"]})'
-      '';
+
+      # fix path for g++
+      patches = [
+        ./patches/godot-cpp.patch # fix x11 libs
+      ];
+     
       # produces "./result/godot-cpp-4.0/[bin gen src ...]
       installPhase = ''
         ls -la ./ >> $out/folders
@@ -50,24 +53,21 @@ in rec {
     };
 
   # function to build any GD-extension
-  buildExt = { extName, version, src, target }:
+  buildExt = { extName, version ? "0.1", src, target ? "editor", ...}:
+   let
+    godot-cpp = mkGodotCPP{target = target; };
+   in 
     stdenv.mkDerivation {
-      pname = extName;
+      pname =  extName + target;
       version = version;
       src = src;
-      nativeBuildInputs = nativeBuildInputs  ++ [mkGodotCPP{}];
+      nativeBuildInputs = nativeBuildInputs  ++ [godot-cpp];
       buildInputs = buildInputs;
       runtimeDependencies = runtimeDependencies;
       sconsFlags = godotCustom.customSconsFlags;
       enableParallelBuilding = true;
+      patchPhase = ''
+        substituteInPlace SConstruct --replace 'env = SConscript("../SConstruct")' 'env = SConscript("${godot-cpp}/SConstruct")'
+      '';
     };
-
-  # TODO : build demo !
-  demo = buildExt {
-    extName = "godot-cpp-demo";
-    version = godotVersion.version;
-    src = "${inputs.godot-cpp}/demo";
-    target = "editor";
-  };
-
 }

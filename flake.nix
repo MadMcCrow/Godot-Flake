@@ -49,10 +49,13 @@
         godot-cpp-release = buildGdExt.mkGodotCPP { target = "template_release"; };
 
         # extension demo
-        godot-cpp-demo = buildGdExt.demo;
+        godot-cpp-demo = buildGdExt.buildExt { 
+          extName = "godot-cpp-demo";
+          src = "${inputs.godot-cpp}/test";
+        };
 
         # all packages are build
-        default = pkgs.linkFarmFromDrvs "godot" [
+        default = pkgs.linkFarmFromDrvs "godot-flake" [
           # godot and its templates
           packages."${system}".godot-editor
           packages."${system}".godot-template-release
@@ -62,7 +65,8 @@
           packages."${system}".godot-cpp-debug
           packages."${system}".godot-cpp-release
           # demo to prove we can build gd-extensions
-          #packages."${system}".godot-cpp-demo
+          # this fails 
+          packages."${system}".godot-cpp-demo
         ];
       };
       # dev-shell
