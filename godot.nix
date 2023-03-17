@@ -87,7 +87,7 @@ in {
     };
 
   # build a template
-  mkGodotTemplate = {target ? "debug"} : mkGodotBase {
+  mkGodotTemplate = {target ? "template_debug"} : mkGodotBase {
       inherit target;
       pname = "godot-template";
       tools = false;
@@ -97,6 +97,6 @@ in {
         cp bin/godot.* $out/share/godot/templates/${godotVersion.version}/${godotVersion.platform}-${target}
       '';
       # https://docs.godotengine.org/en/stable/development/compiling/optimizing_for_size.html
-      strip = (oldAttrs.stripAllList or [ ]) ++ [ "share/godot/templates" ];
+      #strip = (oldAttrs.stripAllList or [ ]) ++ [ "share/godot/templates" ];
     };
 }
