@@ -89,7 +89,6 @@ in {
   # build a template
   mkGodotTemplate = {target ? "template_debug"} : mkGodotBase {
       inherit target;
-      pname = "godot-template";
       tools = false;
       installPhase = ''
         ls -la ./ >> $out/folders

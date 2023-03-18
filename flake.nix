@@ -44,9 +44,8 @@
         godot-template-debug   = buildGodot.mkGodotTemplate { target = "template_debug"; };
 
         # godot extension
-        godot-cpp-editor  = buildGdExt.mkGodotCPP { target = "editor"; };
-        godot-cpp-debug   = buildGdExt.mkGodotCPP { target = "template_debug"; };
-        godot-cpp-release = buildGdExt.mkGodotCPP { target = "template_release"; };
+        godot-cpp-editor  = buildGdExt.godot-cpp-editor;
+
 
         # extension demo
         godot-cpp-demo = buildGdExt.buildExt { 
@@ -60,10 +59,7 @@
           packages."${system}".godot-editor
           packages."${system}".godot-template-release
           packages."${system}".godot-template-debug
-          # godot-cpp to help build gd-extension
-          packages."${system}".godot-cpp-editor
-          packages."${system}".godot-cpp-debug
-          packages."${system}".godot-cpp-release
+
           # demo to prove we can build gd-extensions
           # this fails 
           packages."${system}".godot-cpp-demo
