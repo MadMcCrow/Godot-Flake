@@ -91,7 +91,6 @@ in {
       inherit target;
       tools = false;
       installPhase = ''
-        ls -la ./ >> $out/folders
         mkdir -p "$out/share/godot/templates/${godotVersion.version}"
         cp bin/godot.* $out/share/godot/templates/${godotVersion.version}/${godotVersion.platform}-${target}
       '';

@@ -15,50 +15,69 @@ let
   buildInputs = godotLibraries.runtimeDep;
   runtimeDependencies = godotLibraries.runtimeDep;
 
+in rec{
   #
   #  Godot-cpp bindings : they are required to
   #  valid values for target are: ('editor', 'template_release', 'template_debug'
   #
-  godotCPP = stdenv.mkDerivation {
+  mkGodotCPP =  args @ {target, ...} : stdenv.mkDerivation ({
       # make name:
-      name = (lib.strings.concatStringsSep "-" ["godot-cpp" godotVersion.version]);
+      name = (lib.strings.concatStringsSep "-" ["godot-cpp" target godotVersion.version]);
       version = godotVersion.version;
       src = inputs.godot-cpp;
-      dontBuild = true;
-      # fix path for g++ 
+      # dependancies
+      nativeBuildInputs = godotLibraries.buildTools ++ godotLibraries.buildDep;
+      buildInputs = godotLibraries.runtimeDep;
+      runtimeDependencies = godotLibraries.runtimeDep;
+      # patch
       patches = [
-        ./patches/godot-cpp.patch
+        ./patches/godot-cpp.patch       # fix path for g++ 
       ];
+      # build flags 
+      sconsFlags = [ ("platfom=" + godotVersion.platform) ("target=" + target) "generate_bindings=true"] ++ godotCustom.customSconsFlags;
       # maybe split outputs ["SConstruct" "binding_generator" ... ]
       outputs = [ "out" ];
       installPhase = ''
-      ls -la
+      mkdir -p $out
       cp -r src $out/src
-      cp -r bin $out/bin
-      cp -r gen $out/gen
       cp -r SConstruct $out/
       cp -r binding_generator.py $out/
       cp -r gdextension $out/
+      cp -r include $out/
       cp -r tools $out/
+      cp -r gen $out/
       '';
-    };
+    } // args);
 
-in {
 
   # function to build any GD-extension
   buildExt = args @ { extName, version ? "0.1", src, target ? "editor", ... }:
+  let
+    # godot bindings for that extension
+    godotcpp = mkGodotCPP{inherit target;};
+  in
     stdenv.mkDerivation ({
       pname = extName + target;
       version = version;
       src = src;
-      nativeBuildInputs = nativeBuildInputs ++ [ godotCPP ];
+      nativeBuildInputs = nativeBuildInputs ++ [ godotcpp ];
       buildInputs = buildInputs;
       runtimeDependencies = runtimeDependencies;
-      sconsFlags = [ ("platfom=" + godotVersion.platform) ("target=" + target) ]
-        ++ godotCustom.customSconsFlags;
-      enableParallelBuilding = true;
+      
+      # use Sconstruct from godotcpp
       patchPhase = ''
-        substituteInPlace SConstruct --replace 'env = SConscript("../SConstruct")' 'env = SConscript("${godotCPP}/SConstruct")'
+        substituteInPlace SConstruct --replace 'env = SConscript("../SConstruct")' 'env = SConscript("${godotcpp}/SConstruct")'
       '';
+
+      sconsFlags = [ ("platfom=" + godotVersion.platform) ("target=" + target) "generate_bindings=true"] ++ godotCustom.customSconsFlags;
+      dontConfigure = true;
+      enableParallelBuilding = true;
+     
+      installPhase = ''
+       
+        mkdir $out
+        ls -la > $out/files.txt
+      '';
+      dontFixup = true;
     } // args);
 }
