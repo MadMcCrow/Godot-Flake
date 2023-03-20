@@ -46,6 +46,8 @@ in rec{
       cp -r include $out/
       cp -r tools $out/
       cp -r gen $out/
+      chmod 755 $out -R
+      chmod 755 $out/gen/include/godot_cpp/core/ext_wrappers.gen.inc
       '';
     } // args);
 
@@ -64,9 +66,14 @@ in rec{
       buildInputs = buildInputs;
       runtimeDependencies = runtimeDependencies;
       
+      # patch copies prebuilt godot-cpp
+      # there might be a smarter way to do this, but I'm dumb
       # use Sconstruct from godotcpp
       patchPhase = ''
-        substituteInPlace SConstruct --replace 'env = SConscript("../SConstruct")' 'env = SConscript("${godotcpp}/SConstruct")'
+        mkdir -p godot-cpp
+        cp -r ${godotcpp}/* ./godot-cpp/
+        chmod 777 -R godot-cpp
+        substituteInPlace SConstruct --replace 'env = SConscript("../SConstruct")' 'env = SConscript("godot-cpp/SConstruct")'
       '';
 
       sconsFlags = [ ("platfom=" + godotVersion.platform) ("target=" + target) "generate_bindings=true"] ++ godotCustom.customSconsFlags;
@@ -74,9 +81,11 @@ in rec{
       enableParallelBuilding = true;
      
       installPhase = ''
-       
-        mkdir $out
+        mkdir -p $out
         ls -la > $out/files.txt
+        cp -r src $out/src
+        cp -r demo $out/
+        cp -r godot-cpp $out/
       '';
       dontFixup = true;
     } // args);

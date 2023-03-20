@@ -24,3 +24,9 @@ nix flake update
 ## Github Action
 
 Build, cache and update flake with cachix : ![flake update](https://github.com/MadMcCrow/Godot-flake/.github/workflows/flake-update.yml/badge.svg)
+
+## TODO :
+
+ - [ ] Build extensions
+ - [ ] Regroup Godot and it's templates as a single derivation
+ - [ ] expose functions for other flakes 
