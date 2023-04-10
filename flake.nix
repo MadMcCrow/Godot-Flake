@@ -29,19 +29,21 @@
       # use nixpkgs
       pkgs = import nixpkgs { inherit system; };
       lib = pkgs.lib;
-      # import godot.nix
-      buildGodot = import ./godot.nix { inherit lib pkgs system inputs; };
-      buildGdExt = import ./extensions.nix { inherit lib pkgs system inputs; };
-      # implementation
     in rec {
+
+      # build functions :
+      lib = {
+        buildGodot = import ./godot.nix { inherit lib pkgs system inputs; };
+        buildGdExt = import ./extensions.nix { inherit lib pkgs system inputs; };
+      };
 
       #interface
       packages."${system}" = with pkgs; {
 
         # godot engine
-        godot-editor = buildGodot.mkGodot { }; # Godot Editor
-        godot-template-release = buildGodot.mkGodotTemplate { target = "template_release"; };
-        godot-template-debug   = buildGodot.mkGodotTemplate { target = "template_debug"; };
+        godot-editor = lib.buildGodot.mkGodot { }; # Godot Editor
+        godot-template-release = lib.buildGodot.mkGodotTemplate { target = "template_release"; };
+        godot-template-debug   = lib.buildGodot.mkGodotTemplate { target = "template_debug"; };
 
         godot-cpp-editor = buildGdExt.mkGodotCPP { target = "editor"; };
 
@@ -63,7 +65,7 @@
 
           # demo to prove we can build gd-extensions
           # this fails 
-          packages."${system}".godot-cpp-demo
+          # packages."${system}".godot-cpp-demo
         ];
       };
       # dev-shell
