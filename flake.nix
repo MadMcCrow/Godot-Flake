@@ -1,6 +1,4 @@
 # Godot is a cross-platform open-source game engine written in C++
-# Godot-cpp is the bindings to build custom extensions
-# Godot-rust is one of the most common extensions for godot
 #
 # This flake build godot, the cpp bindings and the export templates
 #
@@ -45,6 +43,7 @@
         godot-template-release = lib.buildGodot.mkGodotTemplate { target = "template_release"; };
         godot-template-debug   = lib.buildGodot.mkGodotTemplate { target = "template_debug"; };
 
+        # godot cpp bindings
         godot-cpp-editor = buildGdExt.mkGodotCPP { target = "editor"; };
 
         # extension demo
