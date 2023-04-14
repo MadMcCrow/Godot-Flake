@@ -3,11 +3,11 @@
     "godot": {
       "flake": false,
       "locked": {
-        "lastModified": 1679047004,
-        "narHash": "sha256-mhq5UjOKPLT8UMFMcjL4h4WBzYsOP9wscveHub1Vw9Q=",
+        "lastModified": 1681495287,
+        "narHash": "sha256-Bi9jkewInrvASF5w/I9XdGzBDGYJkzyx3sWK5G8bbCw=",
         "owner": "godotengine",
         "repo": "godot",
-        "rev": "a7d0e18a317085068c43be29bca1d280d03423a2",
+        "rev": "a7276f1ce0c2911216a2c4718efddab98ddffd8f",
         "type": "github"
       },
       "original": {
@@ -19,11 +19,11 @@
     "godot-cpp": {
       "flake": false,
       "locked": {
-        "lastModified": 1677681164,
-        "narHash": "sha256-jkyKdD5KDSzLH/SwiMCz4xFq/m9P7hi0FbEeSYuEfjc=",
+        "lastModified": 1680600608,
+        "narHash": "sha256-6+w6m+9dW6y6v7wcnL5ZM+q8NX6Kq/PSJ70crL/U+EQ=",
         "owner": "godotengine",
         "repo": "godot-cpp",
-        "rev": "9d1c396c54fc3bdfcc7da4f3abcb52b14f6cce8f",
+        "rev": "feaba551b5a5b2d13ad1c3fdd8c90e67c67ff37c",
         "type": "github"
       },
       "original": {

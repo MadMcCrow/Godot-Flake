@@ -22,26 +22,27 @@
   # func
   outputs = { self, nixpkgs, ... }@inputs:
     let
-      # only linux supported, todo, support darwin
+      # only linux supported
+      # todo, support darwin
       system = "x86_64-linux";
-      # use nixpkgs
       pkgs = import nixpkgs { inherit system; };
       lib = pkgs.lib;
-    in rec {
+
+      buildGodot = import ./godot.nix { inherit lib pkgs system inputs; };
+      buildGdExt = import ./extensions.nix { inherit lib pkgs system inputs; };
+
+    in {
 
       # build functions :
-      lib = {
-        buildGodot = import ./godot.nix { inherit lib pkgs system inputs; };
-        buildGdExt = import ./extensions.nix { inherit lib pkgs system inputs; };
-      };
+      lib = { inherit buildGodot buildGdExt; };
 
       #interface
       packages."${system}" = with pkgs; {
 
         # godot engine
-        godot-editor = lib.buildGodot.mkGodot { }; # Godot Editor
-        godot-template-release = lib.buildGodot.mkGodotTemplate { target = "template_release"; };
-        godot-template-debug   = lib.buildGodot.mkGodotTemplate { target = "template_debug"; };
+        godot-editor = buildGodot.mkGodot { }; # Godot Editor
+        godot-template-release = buildGodot.mkGodotTemplate { target = "template_release"; };
+        godot-template-debug   = buildGodot.mkGodotTemplate { target = "template_debug"; };
 
         # godot cpp bindings
         godot-cpp-editor = buildGdExt.mkGodotCPP { target = "editor"; };

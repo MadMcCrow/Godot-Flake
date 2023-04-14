@@ -2,6 +2,7 @@
 # this modules focuses on building cool extensions for godot
 { lib, pkgs, system, inputs }:
 with pkgs;
+with builtins;
 let
   # godot version infos
   godotVersion = import ./version.nix { inherit system; };
@@ -22,7 +23,7 @@ in rec{
   #
   mkGodotCPP =  args @ {target, ...} : stdenv.mkDerivation ({
       # make name:
-      name = (lib.strings.concatStringsSep "-" ["godot-cpp" target godotVersion.version]);
+      name = (concatStringsSep "-" ["godot-cpp" target godotVersion.version]);
       version = godotVersion.version;
       src = inputs.godot-cpp;
       # dependancies

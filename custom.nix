@@ -45,7 +45,7 @@ let
 
   # turn option set into scons options
   mkGodotOption = optionSet:
-    (lib.mapAttrsToList (k: v:
+    (pkgs.lib.mapAttrsToList (k: v:
       if (builtins.isBool v) then
         ("${k}=${boolToString v}")
       else

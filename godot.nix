@@ -3,6 +3,7 @@
 # TODO : Add support for a custom.py
 { lib, pkgs, inputs, system }:
 with pkgs;
+with builtins;
 let
 
   # godot version
@@ -29,7 +30,7 @@ let
       inherit installPhase strip;
 
       # use variables from args
-      name = (lib.strings.concatStringsSep "-" [pname target godotVersion.version]);
+      name = (concatStringsSep "-" [pname target godotVersion.version]);
       src = inputs.godot;
 
       # get godot version from version modules
