@@ -28,8 +28,32 @@
       pkgs = import nixpkgs { inherit system; };
       lib = pkgs.lib;
 
+      # helper function
       buildGodot = import ./godot.nix { inherit lib pkgs system inputs; };
       buildGdExt = import ./extensions.nix { inherit lib pkgs system inputs; };
+
+      # godot engine
+      godot-editor = buildGodot.mkGodot { }; # Godot Editor
+      godot-template-release =
+        buildGodot.mkGodotTemplate { target = "template_release"; };
+      godot-template-debug =
+        buildGodot.mkGodotTemplate { target = "template_debug"; };
+
+      godot-engine = pkgs.buildEnv {
+        name = "godot-engine";
+        paths = [ godot-editor godot-template-release godot-template-debug ];
+      };
+
+      # godot cpp bindings
+      godot-cpp-editor = buildGdExt.mkGodotCPP { target = "editor"; };
+
+      # extension demo
+      godot-cpp-demo = buildGdExt.buildExt {
+        extName = "godot-cpp-demo";
+        src = "${inputs.godot-cpp}/test";
+      };
+
+      # whole godot package
 
     in {
 
@@ -38,33 +62,10 @@
 
       #interface
       packages."${system}" = with pkgs; {
-
-        # godot engine
-        godot-editor = buildGodot.mkGodot { }; # Godot Editor
-        godot-template-release = buildGodot.mkGodotTemplate { target = "template_release"; };
-        godot-template-debug   = buildGodot.mkGodotTemplate { target = "template_debug"; };
-
-        # godot cpp bindings
-        godot-cpp-editor = buildGdExt.mkGodotCPP { target = "editor"; };
-
-        # extension demo
-        godot-cpp-demo = buildGdExt.buildExt { 
-          extName = "godot-cpp-demo";
-          src = "${inputs.godot-cpp}/test";
-        };
-
-        # all packages are build
         default = pkgs.linkFarmFromDrvs "godot-flake" [
-          # godot and its templates
-          packages."${system}".godot-editor
-          packages."${system}".godot-template-release
-          packages."${system}".godot-template-debug
-
-          # godot-cpp
-          packages."${system}".godot-cpp-editor
-
-          # demo to prove we can build gd-extensions
-          packages."${system}".godot-cpp-demo
+          godot-engine
+          godot-cpp-editor
+          godot-cpp-demo
         ];
       };
       # dev-shell
