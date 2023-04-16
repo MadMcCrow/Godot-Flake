@@ -27,6 +27,8 @@ Build, cache and update flake with cachix : ![flake update](https://github.com/M
 
 ## TODO :
 
- - [ ] Build extensions
+ - [X] Build extensions
  - [ ] Regroup Godot and it's templates as a single derivation
- - [ ] expose functions for other flakes 
+ - [X] Expose functions for other flakes 
+ - [ ] Add Darwin (MacOS) support
+ - [ ] Build against a specific nixpkgs

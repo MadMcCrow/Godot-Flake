@@ -5,13 +5,11 @@
 {
   description = "the godot Engine, and the godot-cpp bindings for extensions";
   inputs = {
-
     # the godot Engine
     godot = {
       url = "github:godotengine/godot";
       flake = false;
     };
-
     # the godot cpp bindings to build GDExtensions
     godot-cpp = {
       url = "github:godotengine/godot-cpp";
@@ -19,11 +17,10 @@
     };
   };
 
-  # func
   outputs = { self, nixpkgs, ... }@inputs:
     let
       # only linux supported
-      # todo, support darwin
+      # TODO: support darwin and cross compilation
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
       lib = pkgs.lib;
@@ -39,6 +36,7 @@
       godot-template-debug =
         buildGodot.mkGodotTemplate { target = "template_debug"; };
 
+      # whole godot package
       godot-engine = pkgs.buildEnv {
         name = "godot-engine";
         paths = [ godot-editor godot-template-release godot-template-debug ];
@@ -53,14 +51,12 @@
         src = "${inputs.godot-cpp}/test";
       };
 
-      # whole godot package
-
     in {
 
       # build functions :
       lib = { inherit buildGodot buildGdExt; };
 
-      #interface
+      #packages
       packages."${system}" = with pkgs; {
         default = pkgs.linkFarmFromDrvs "godot-flake" [
           godot-engine
@@ -69,6 +65,7 @@
         ];
       };
       # dev-shell
+      # TODO : Godot development tools
       devShells."${system}".default = with pkgs; mkShell { };
     };
 }
