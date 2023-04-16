@@ -5,7 +5,8 @@ godot is a cross-platform open-source game engine written in C++
 [godot github](https://github.com/godotengine)
 
 ## This flake
-this flakes helps project building the godot engine and the C++ bindings to write extensions
+this flakes helps project building the godot engine and the C++ bindings to write extensions.
+
 
 ## How To run
 to build , run 
