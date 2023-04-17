@@ -44,7 +44,7 @@ jobs:
           nix flake show --json > flake.json
       - id: gen_matrix
         run: |
-          vector=$(jq -c '.packages["x86_64-linux"] | keys - ["default"]' < flake.json)
+          vector=$(jq -c '.packages["x86_64-linux"]' < flake.json)
           echo "vector=$vector" >> $GITHUB_OUTPUT
 
   # build new flake 
