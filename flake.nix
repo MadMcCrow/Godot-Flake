@@ -35,13 +35,13 @@
 
   };
 
-  outputs = { self, nixpkgs, ... }@inputs:
+  outputs = { self, ... }@inputs:
     let
       # only x86_64-linux supported for now.
       system = "x86_64-linux";
 
       # import pkgs;
-      pkgs = import nixpkgs { 
+      pkgs = import inputs.nixpkgs { 
         inherit system;
         overlays = [ inputs.nixgl.overlay ];
       };
@@ -58,7 +58,6 @@
 
         # ideal options for building godot on nix
         options = {
-          use_llvm = true;
           use_volk = false;
           use_sowrap = true; # make sure to link to system libraries
           production = true;
