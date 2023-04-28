@@ -5,67 +5,86 @@
 {
   description = "the godot Engine, and the godot-cpp bindings for extensions";
   inputs = {
+
     # the godot Engine
     godot = {
       url = "github:godotengine/godot";
       flake = false;
     };
+
     # the godot cpp bindings to build GDExtensions
     godot-cpp = {
       url = "github:godotengine/godot-cpp";
       flake = false;
     };
+
+    # the nixpkgs repo
+    nixpkgs = { url = "github:nixos/nixpkgs/nixos-unstable"; };
+
+    # flake utils to support multiple systems
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      };
+
+    # nixgl : A wrapper tool for nix OpenGL application 
+    nixgl = {
+      url = "github:guibou/nixGL";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+
   };
 
   outputs = { self, nixpkgs, ... }@inputs:
     let
-      # only linux supported
-      # TODO: support darwin and cross compilation
+      # only x86_64-linux supported for now.
       system = "x86_64-linux";
-      pkgs = import nixpkgs { inherit system; };
-      lib = pkgs.lib;
+
+      # import pkgs;
+      pkgs = import nixpkgs { 
+        inherit system;
+        overlays = [ inputs.nixgl.overlay ];
+      };
+
+      importArgs = { inherit pkgs system inputs; };
 
       # helper function
-      buildGodot = import ./godot.nix { inherit lib pkgs system inputs; };
-      buildGdExt = import ./extensions.nix { inherit lib pkgs system inputs; };
+      buildGodot = import ./godot.nix importArgs;
+      buildGdExt = import ./extensions.nix importArgs;
 
-      # godot engine
-      godot-editor = buildGodot.mkGodot { }; # Godot Editor
-      godot-template-release =
-        buildGodot.mkGodotTemplate { target = "template_release"; };
-      godot-template-debug =
-        buildGodot.mkGodotTemplate { target = "template_debug"; };
+      buildArgs = {
+        # godot bin name :
+        pname = "godot";
 
-      # whole godot package
-      godot-engine = pkgs.buildEnv {
-        name = "godot-engine";
-        paths = [ godot-editor godot-template-release godot-template-debug ];
+        # ideal options for building godot on nix
+        options = {
+          use_llvm = true;
+          use_volk = false;
+          use_sowrap = true; # make sure to link to system libraries
+          production = true;
+          optimize = "speed";
+          lto = "full";
+        };
+        withTemplates = true;
       };
 
-      # godot cpp bindings
-      godot-cpp-editor = buildGdExt.mkGodotCPP { target = "editor"; };
-
-      # extension demo
-      godot-cpp-demo = buildGdExt.buildExt {
-        extName = "godot-cpp-demo";
-        src = "${inputs.godot-cpp}/test";
-      };
+      # godot packages:
+      godot-engine = buildGodot.mkGodot buildArgs;
 
     in {
 
-      # build functions :
+      # expose build functions :
       lib = { inherit buildGodot buildGdExt; };
 
       #packages
       packages."${system}" = with pkgs; {
-        default = pkgs.linkFarmFromDrvs "godot-flake" [
-          godot-engine
-          godot-cpp-editor
-          godot-cpp-demo
-        ];
+        # expose build packages :
+        inherit godot-engine;
+        # default is godot engine
+        default = godot-engine;
       };
-      # dev-shell
-      # TODO : Godot development tools
-      devShells."${system}".default = with pkgs; mkShell { };
+
+      devShells."${system}".default = with pkgs;
+        buildGodot.mkGodotShell buildArgs;
     };
 }
