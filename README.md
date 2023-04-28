@@ -8,8 +8,8 @@ godot is a cross-platform open-source game engine written in C++
 [Nixos Wiki](https://nixos.wiki/wiki/Flakes)
 [Nixos Manual](https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-flake.html)
 
-| Flakes are the unit for packaging Nix code in a reproducible and discoverable way. They can have dependencies on other flakes, making it possible to have multi-repository Nix projects.
-| this flakes helps project building the godot engine and the C++ bindings to write extensions.
+    Flakes are the unit for packaging Nix code in a reproducible and discoverable way. They can have dependencies on other flakes, making it possible to have multi-repository Nix projects.
+    this flakes helps project building the godot engine and the C++ bindings to write extensions.
 
 In our case we expose functions and packages to build, develop and run Godot and any related Extensions ([GDExtensions](https://godotengine.org/article/introducing-gd-extensions/))
 
@@ -25,9 +25,13 @@ nix run     # will start the godot editor
 
 Add to `flake.nix` :
 ```nix
+{
     inputs.godot-flake.url = "github:MadMcCrow/godot-flake";
+}
 ```
+Now you can use :
 ```nix
+{
     system = "x86_64-linux";
     pkgGodot = inputs.godot-flake.packages."${system}";
     libGodot = inputs.godot-flake.lib;
@@ -37,6 +41,7 @@ Add to `flake.nix` :
     godot = libGodot.mkGodot {pname = "my-godot-engine"; options = { }; withTemplates = false;};
     # you can also build extensions :
     myExt = buildGdExt.buildExt { extName = "myGDExtension"; src = self; target = "editor"; };
+}
 ```
 
 ## Github Action
