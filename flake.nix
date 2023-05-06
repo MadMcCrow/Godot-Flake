@@ -49,8 +49,8 @@
       importArgs = { inherit pkgs system inputs; };
 
       # helper function
-      buildGodot = import ./godot.nix importArgs;
-      buildGdExt = import ./extensions.nix importArgs;
+      libGodot = import ./godot.nix importArgs;
+      libGDExt = import ./extensions.nix importArgs;
 
       buildArgs = {
         # godot bin name :
@@ -68,12 +68,12 @@
       };
 
       # godot packages:
-      godot-engine = buildGodot.mkGodot buildArgs;
+      godot-engine = libGodot.mkGodot buildArgs;
 
     in {
 
       # expose build functions :
-      lib = { inherit buildGodot buildGdExt; };
+      lib = { inherit libGodot libGDExt; };
 
       #packages
       packages."${system}" = with pkgs; {

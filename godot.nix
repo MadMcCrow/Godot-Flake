@@ -37,7 +37,7 @@ let
     platform = godotVersion.platform;
     # get libs for options :
     nativeBuildInputs = godotLibraries.mkNativeBuildInputs options;
-    runtimeDependencies = godotLibraries.mkRuntimeDependancies options;
+    runtimeDependencies = godotLibraries.mkRuntimeDependencies options;
     buildInputs = godotLibraries.mkBuildInputs options;
   in
   {
@@ -101,7 +101,7 @@ in {
       packages = [ breakpointHook cntr ]
         ++ (condList "nativeBuildInputs" godotAttr)
         ++ (condList "buildInputs" godotAttr)
-        ++ (condList "runtimeDependancies" godotAttr);
+        ++ (condList "runtimeDependencies" godotAttr);
       inputsFrom = [ (stdenv.mkDerivation godotAttr) ];
       src = godotAttr.src;
       shellHook = ''

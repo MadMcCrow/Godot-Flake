@@ -7,12 +7,9 @@ let
   # get libs
   lib = pkgs.lib;
 
-  # godot version infos
   godotVersion = import ./version.nix { inherit system; };
-  # godot custom.py
-  godotCustom = import ./custom.nix { inherit pkgs system options; };
-  # godot build libraries
-  godotLibraries = import ./libs.nix { inherit pkgs system options; };
+  godotCustom = import ./custom.nix { inherit lib; };
+  godotLibraries = import ./libs.nix { inherit pkgs; };
 
   condAttr = name: set: default:
     if hasAttr name set then getAttr name set else default;
@@ -33,15 +30,21 @@ let
   #  valid values for target are: ('editor', 'template_release', 'template_debug'
   #
   mkGodotCPP = { target ? "editor", ... }:
+    let
+    version = godotVersion.version;
+    platform = godotVersion.platform;
+    # get libs for options :
+    nativeBuildInputs = godotLibraries.mkNativeBuildInputs options;
+    runtimeDependencies = godotLibraries.mkRuntimeDependencies options;
+    buildInputs = godotLibraries.mkBuildInputs options;
+    sconsFlags = godotCustom.mkSconsFlags options;
+    in
     stdenv.mkDerivation ({
+      inherit nativeBuildInputs runtimeDependencies buildInputs;
       # make name:
       name = (concatStringsSep "-" [ "godot-cpp" target godotVersion.version ]);
       version = godotVersion.version;
       src = inputs.godot-cpp;
-      # dependancies
-      nativeBuildInputs = godotLibraries.buildTools ++ godotLibraries.buildDep;
-      buildInputs = godotLibraries.runtimeDep;
-      runtimeDependencies = godotLibraries.runtimeDep;
       # patch
       patches = [
         ./patches/godot-cpp.patch # fix path for g++
@@ -51,7 +54,7 @@ let
         ("platfom=" + godotVersion.platform)
         ("target=" + target)
         "generate_bindings=true"
-      ] ++ godotCustom.customSconsFlags;
+      ] ++ sconsFlags;
       # maybe split outputs ["SConstruct" "binding_generator" ... ]
       outputs = [ "out" ];
       installPhase = ''
@@ -73,35 +76,41 @@ in {
   inherit mkGodotCPP;
 
   # function to build any GD-extension
-  buildExt = args@{ extName, target ? "editor", ... }:
+  mkGDExt = args@{ extName, src,  target ? "editor", options ? {}, ... }:
     let
-      # godot bindings for that extension
       godotcpp = mkGodotCPP { inherit target; };
-    in stdenv.mkDerivation (args // {
+      nativeBuildInputs = godotLibraries.mkNativeBuildInputs options;
+      runtimeDependencies = godotLibraries.mkRuntimeDependencies options;
+      buildInputs = godotLibraries.mkBuildInputs options;
+      sconsFlags = godotCustom.mkSconsFlags options;
+      condList   = name : condAttr name args [];
+      condString = name : condAttr name args "";
+    in 
+    stdenv.mkDerivation (args // {
+      inherit src;
       # TODO : should we allow custom name ?
       pname = extName + target;
       version = condAttr "version" args godotVersion.version;
-      nativeBuildInputs = godotLibraries.buildTools ++ godotLibraries.buildDep
-        ++ [ godotcpp ] ++ (condAttr "nativeBuildInputs" args [ ]);
-      buildInputs = godotLibraries.runtimeDep
-        ++ (condAttr "buildInputs" args [ ]);
-      runtimeDependencies = godotLibraries.runtimeDep
-        ++ (condAttr "runtimeDependencies" args [ ]);
+      nativeBuildInputs = nativeBuildInputs ++ [ godotcpp ] ++ (condList "nativeBuildInputs");
+      buildInputs = buildInputs ++ (condList "buildInputs");
+      runtimeDependencies = runtimeDependencies ++ (condList "runtimeDependencies");
 
       # patchPhase
       patchPhase = (prepExtension godotcpp) + "\n"
-        + (condAttr "patchPhase" args "");
+        + (condString "patchPhase");
 
       # buildPhase
       sconsFlags = [ ("platfom=" + godotVersion.platform) ("target=" + target) ]
-        ++ godotCustom.customSconsFlags ++ (condAttr "sconsFlags" args [ ]);
+        ++ sconsFlags ++ (condList "sconsFlags");
+
+      # you may want to override
       enableParallelBuilding = condAttr "enableParallelBuilding" args true;
 
-      #installPhase
-      installPhase = ''
+      #installPhase : override defaults !
+      installPhase = condAttr "installPhase" args ''
         mkdir -p $out
         ls -la > $out/files.txt
-      '' + (condAttr "installPhase" args "");
+      '';
     });
 
   # Make a shell to develop extension

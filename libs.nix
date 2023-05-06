@@ -66,8 +66,8 @@ let
     ];
 
 
-    # build dependancies
-  mkBuildDependancies = options : (with pkgs;
+    # build dependencies
+  mkBuildDependencies = options : (with pkgs;
     [ zlib yasm ] )
     ++ conditionalLib (use_x11 options)    libXorg
     ++ conditionalLib (use_openGL options) libOpenGL 
@@ -90,7 +90,7 @@ in {
  
 
   # runtime dependencies
-  mkRuntimeDependancies = options : libRuntime
+  mkRuntimeDependencies = options : libRuntime
     ++ conditionalLib (use_x11 options)    libXorg
     ++ conditionalLib (use_mono options)   libMono
     ++ conditionalLib (use_openGL options) libOpenGL
@@ -98,6 +98,6 @@ in {
 
   # As a rule of thumb: Buildtools as nativeBuildInputs,
   # libraries and executables you only need after the build as buildInputs
-  mkNativeBuildInputs = options : (mkBuildTools options) ++ (mkBuildDependancies options);
-  mkBuildInputs = options : (mkBuildDependancies options);
+  mkNativeBuildInputs = options : (mkBuildTools options) ++ (mkBuildDependencies options);
+  mkBuildInputs = options : (mkBuildDependencies options);
 }
