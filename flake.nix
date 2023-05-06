@@ -84,6 +84,6 @@
       };
 
       devShells."${system}".default = with pkgs;
-        buildGodot.mkGodotShell buildArgs;
+        libGodot.mkGodotShell buildArgs;
     };
 }
