@@ -29,7 +29,7 @@ let
   #  Godot-cpp bindings : they are required to
   #  valid values for target are: ('editor', 'template_release', 'template_debug'
   #
-  mkGodotCPP = { target ? "editor", ... }:
+  mkGodotCPP = { target ? "editor", options ? {} }:
     let
     version = godotVersion.version;
     platform = godotVersion.platform;
@@ -78,7 +78,7 @@ in {
   # function to build any GD-extension
   mkGDExt = args@{ extName, src,  target ? "editor", options ? {}, ... }:
     let
-      godotcpp = mkGodotCPP { inherit target; };
+      godotcpp = mkGodotCPP { inherit target options; };
       nativeBuildInputs = godotLibraries.mkNativeBuildInputs options;
       runtimeDependencies = godotLibraries.mkRuntimeDependencies options;
       buildInputs = godotLibraries.mkBuildInputs options;
