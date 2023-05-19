@@ -29,7 +29,7 @@ let
   #  Godot-cpp bindings : they are required to
   #  valid values for target are: ('editor', 'template_release', 'template_debug'
   #
-  mkGodotCPP = { target ? "editor", options ? {} }:
+  mkGodotCPP = { target ? "editor", options ? {}, ... }:
     let
     version = godotVersion.version;
     platform = godotVersion.platform;
