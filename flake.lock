@@ -1,31 +1,13 @@
 {
   "nodes": {
-    "flake-utils": {
-      "inputs": {
-        "systems": "systems"
-      },
-      "locked": {
-        "lastModified": 1681202837,
-        "narHash": "sha256-H+Rh19JDwRtpVPAWp64F+rlEtxUWBAQW28eAi3SRSzg=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "cfacdce06f30d2b68473a46042957675eebb3401",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
     "godot": {
       "flake": false,
       "locked": {
-        "lastModified": 1684499410,
-        "narHash": "sha256-l1cAlvuXqK7Mu+tMmfs7jNTipEE1kT+w74XiiGYRuvY=",
+        "lastModified": 1686391933,
+        "narHash": "sha256-z9vaEqeE4I4U71hIDsKeoeyh0OvZmnhOvWs8JJke1XU=",
         "owner": "godotengine",
         "repo": "godot",
-        "rev": "9ad9820f5d2a4357ad16480f88a679fce8ecd492",
+        "rev": "37d1dfef9d81aade27ab0c56fc6b6f12f6a08045",
         "type": "github"
       },
       "original": {
@@ -37,49 +19,26 @@
     "godot-cpp": {
       "flake": false,
       "locked": {
-        "lastModified": 1684250791,
-        "narHash": "sha256-ggXUv1y9H8er813SMa5NLpFS+Qv0YdCh6Bs2ZJu4ENc=",
+        "lastModified": 1686256311,
+        "narHash": "sha256-DIrJrxNlPDXLVEBIx39NTNcR4N338UTEt7XJbpQh4ec=",
         "owner": "godotengine",
         "repo": "godot-cpp",
-        "rev": "1c18413de00f1a6265b2b6c30175b2f6a434b574",
+        "rev": "d12cf071bbdcfda6875e78167d282278ab420878",
         "type": "github"
       },
       "original": {
         "owner": "godotengine",
         "repo": "godot-cpp",
-        "type": "github"
-      }
-    },
-    "nixgl": {
-      "inputs": {
-        "flake-utils": [
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1676383589,
-        "narHash": "sha256-KCkWZXCjH+C4Kn7fUGSrEl5btk+sERHhZueSsvVbPWc=",
-        "owner": "guibou",
-        "repo": "nixGL",
-        "rev": "c917918ab9ebeee27b0dd657263d3f57ba6bb8ad",
-        "type": "github"
-      },
-      "original": {
-        "owner": "guibou",
-        "repo": "nixGL",
         "type": "github"
       }
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1684385584,
-        "narHash": "sha256-O7y0gK8OLIDqz+LaHJJyeu09IGiXlZIS3+JgEzGmmJA=",
+        "lastModified": 1686412476,
+        "narHash": "sha256-inl9SVk6o5h75XKC79qrDCAobTD1Jxh6kVYTZKHzewA=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "48a0fb7aab511df92a17cf239c37f2bd2ec9ae3a",
+        "rev": "21951114383770f96ae528d0ae68824557768e81",
         "type": "github"
       },
       "original": {
@@ -91,26 +50,9 @@
     },
     "root": {
       "inputs": {
-        "flake-utils": "flake-utils",
         "godot": "godot",
         "godot-cpp": "godot-cpp",
-        "nixgl": "nixgl",
         "nixpkgs": "nixpkgs"
-      }
-    },
-    "systems": {
-      "locked": {
-        "lastModified": 1681028828,
-        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
-        "owner": "nix-systems",
-        "repo": "default",
-        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-systems",
-        "repo": "default",
-        "type": "github"
       }
     }
   },

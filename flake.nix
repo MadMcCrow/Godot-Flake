@@ -19,43 +19,17 @@
     };
 
     # the nixpkgs repo
-    nixpkgs = { url = "github:nixos/nixpkgs/nixos-unstable"; };
-
-    # flake utils to support multiple systems
-    flake-utils = {
-      url = "github:numtide/flake-utils";
-      };
-
-    # nixgl : A wrapper tool for nix OpenGL application 
-    nixgl = {
-      url = "github:guibou/nixGL";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-    };
-
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    
   };
 
-  outputs = { self, ... }@inputs:
+  outputs = { self, nixpkgs, ... }@inputs:
     let
-      # only x86_64-linux supported for now.
-      system = "x86_64-linux";
-
-      # import pkgs;
-      pkgs = import inputs.nixpkgs { 
-        inherit system;
-        overlays = [ inputs.nixgl.overlay ];
-      };
-
-      importArgs = { inherit pkgs system inputs; };
-
-      # helper function
-      libGodot = import ./godot.nix importArgs;
-      libGDExt = import ./extensions.nix importArgs;
-
+      #default build args
       buildArgs = {
         # godot bin name :
         pname = "godot";
-
+        version = "4.1";
         # ideal options for building godot on nix
         options = {
           use_volk = false;
@@ -67,23 +41,37 @@
         withTemplates = true;
       };
 
-      # godot packages:
-      godot-engine = libGodot.mkGodot buildArgs;
+      # only linux supported for now
+      systems = [ "x86_64-linux" "aarch64-linux" ];
+
+      # helper to build for multiple system
+      forAllSystems = function:
+        nixpkgs.lib.genAttrs systems
+        (system: function nixpkgs.legacyPackages.${system});
+
+      # helper function
+      callGodot = pkgs :
+        import ./godot.nix { inherit pkgs inputs; system = pkgs.system;};
+      callGdExt = pkgs :
+        import ./godot.nix { inherit pkgs inputs; system = pkgs.system;};
 
     in {
-
-      # expose build functions :
-      lib = { inherit libGodot libGDExt; };
-
-      #packages
-      packages."${system}" = with pkgs; {
-        # expose build packages :
-        inherit godot-engine;
-        # default is godot engine
+      # pre-defined godot engine 
+      packages = forAllSystems (pkgs: rec {
+        # godot engine 
+        godot-engine = (callGodot pkgs).mkGodot buildArgs;
         default = godot-engine;
-      };
+      });
 
-      devShells."${system}".default = with pkgs;
-        libGodot.mkGodotShell buildArgs;
+      # add build functions 
+      lib = forAllSystems (pkgs: rec {
+        libGodot = callGodot pkgs;
+        libGdExt = callGdExt pkgs;
+      });
+
+      devShells = forAllSystems (pkgs: rec {
+        default = (callGodot pkgs).mkGodotShell buildArgs;
+      });
+
     };
 }

@@ -1,13 +1,12 @@
 # extension.nix
 # this modules focuses on building cool extensions for godot
-{ pkgs, system, inputs, options ? { } }:
+args@{ pkgs, system, inputs }:
 with pkgs;
 with builtins;
 let
   # get libs
   lib = pkgs.lib;
 
-  godotVersion = import ./version.nix { inherit system; };
   godotCustom = import ./custom.nix { inherit lib; };
   godotLibraries = import ./libs.nix { inherit pkgs; };
 
@@ -24,22 +23,20 @@ let
     substituteInPlace SConstruct --replace 'env = SConscript("../SConstruct")' 'env = SConscript("godot-cpp/SConstruct")'
   '';
 
-
   #
   #  Godot-cpp bindings : they are required to
   #  valid values for target are: ('editor', 'template_release', 'template_debug'
   #
-  mkGodotCPP = { target ? "editor", options ? {}, ... }:
+  mkGodotCPP = { target ? "editor", options ? { }, version ? "", ... }:
     let
-    version = godotVersion.version;
-    platform = godotVersion.platform;
-    # get libs for options :
-    nativeBuildInputs = godotLibraries.mkNativeBuildInputs options;
-    runtimeDependencies = godotLibraries.mkRuntimeDependencies options;
-    buildInputs = godotLibraries.mkBuildInputs options;
-    sconsFlags = godotCustom.mkSconsFlags options;
-    in
-    stdenv.mkDerivation ({
+      godotVersion = import ./version.nix { inherit pkgs version inputs; };
+      godotPlatform = import ./platform.nix { inherit system; };
+      # get libs for options :
+      nativeBuildInputs = godotLibraries.mkNativeBuildInputs options;
+      runtimeDependencies = godotLibraries.mkRuntimeDependencies options;
+      buildInputs = godotLibraries.mkBuildInputs options;
+      sconsFlags = godotCustom.mkSconsFlags options;
+    in stdenv.mkDerivation ({
       inherit nativeBuildInputs runtimeDependencies buildInputs;
       # make name:
       name = (concatStringsSep "-" [ "godot-cpp" target godotVersion.version ]);
@@ -51,7 +48,7 @@ let
       ];
       # build flags 
       sconsFlags = [
-        ("platfom=" + godotVersion.platform)
+        ("platform=" + godotPlatform)
         ("target=" + target)
         "generate_bindings=true"
       ] ++ sconsFlags;
@@ -76,31 +73,35 @@ in {
   inherit mkGodotCPP;
 
   # function to build any GD-extension
-  mkGDExt = args@{ extName, src,  target ? "editor", options ? {}, ... }:
+  mkGDExt =
+    args@{ extName, src, target ? "editor", options ? { }, version ? "", ... }:
     let
       godotcpp = mkGodotCPP { inherit target options; };
+      godotVersion = import ./version.nix { inherit pkgs version inputs; };
+      godotPlatform = import ./platform.nix { inherit system; };
       nativeBuildInputs = godotLibraries.mkNativeBuildInputs options;
       runtimeDependencies = godotLibraries.mkRuntimeDependencies options;
       buildInputs = godotLibraries.mkBuildInputs options;
       sconsFlags = godotCustom.mkSconsFlags options;
-      condList   = name : condAttr name args [];
-      condString = name : condAttr name args "";
-    in 
-    stdenv.mkDerivation (args // {
+      condList = name: condAttr name args [ ];
+      condString = name: condAttr name args "";
+    in stdenv.mkDerivation (args // {
       inherit src;
+      version = godotVersion;
+      platform = godotPlatform;
       # TODO : should we allow custom name ?
       pname = extName + target;
-      version = condAttr "version" args godotVersion.version;
-      nativeBuildInputs = nativeBuildInputs ++ [ godotcpp ] ++ (condList "nativeBuildInputs");
+      nativeBuildInputs = nativeBuildInputs ++ [ godotcpp ]
+        ++ (condList "nativeBuildInputs");
       buildInputs = buildInputs ++ (condList "buildInputs");
-      runtimeDependencies = runtimeDependencies ++ (condList "runtimeDependencies");
+      runtimeDependencies = runtimeDependencies
+        ++ (condList "runtimeDependencies");
 
       # patchPhase
-      patchPhase = (prepExtension godotcpp) + "\n"
-        + (condString "patchPhase");
+      patchPhase = (prepExtension godotcpp) + "\n" + (condString "patchPhase");
 
       # buildPhase
-      sconsFlags = [ ("platfom=" + godotVersion.platform) ("target=" + target) ]
+      sconsFlags = [ ("platform=" + godotPlatform) ("target=" + target) ]
         ++ sconsFlags ++ (condList "sconsFlags");
 
       # you may want to override
@@ -117,12 +118,13 @@ in {
   mkExtensionShell = extPkg:
     let godot-cpp = mkGodotCPP { target = condAttr "target" extPkg "editor"; };
     in mkShell {
-      packages = [ breakpointHook cntr ] ++ condAttr "nativeBuildInputs" extPkg [];
+      packages = [ breakpointHook cntr ]
+        ++ condAttr "nativeBuildInputs" extPkg [ ];
       inputsFrom = [ extPkg ];
       src = extPkg.src;
       shellHook = ''
-      unpackPhase
-      cd source
+        unpackPhase
+        cd source
       '' + prepExtension godot-cpp;
     };
 }

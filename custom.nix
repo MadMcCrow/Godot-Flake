@@ -146,7 +146,8 @@ let
     module_zip_enabled = true;
   };
 
-  customPy = options : if (hasAttr "profile" options) then getAttr "profile" options else "";
+  customPy = options:
+    if (hasAttr "profile" options) then getAttr "profile" options else "";
 
   # helper functions :
   condAttr = n: s: d: if hasAttr n s then getAttr n s else d;
@@ -161,13 +162,17 @@ let
         ("${k}=${v}")
       else
         "${k}=${toJSON v}") optionSet);
-  
+
 in {
 
   defaultOptions = defaults;
 
   # resulting scons flag
-  mkSconsFlags = options : if ((customPy options)=="")  then (mkGodotOption options) else "profile=${customPy}";
+  mkSconsFlags = options:
+    if ((customPy options) == "") then
+      (mkGodotOption options)
+    else
+      "profile=${customPy}";
 
   # get option from godot
   getOption = name: options: condAttr name options (condAttr name defaults "");
