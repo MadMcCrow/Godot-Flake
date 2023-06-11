@@ -39,8 +39,8 @@ let
     in stdenv.mkDerivation ({
       inherit nativeBuildInputs runtimeDependencies buildInputs;
       # make name:
-      name = (concatStringsSep "-" [ "godot-cpp" target godotVersion.version ]);
-      version = godotVersion.version;
+      name = "godot-cpp-${target}-${godotVersion.asString}";
+      version =  godotVersion.asString;
       src = inputs.godot-cpp;
       # patch
       patches = [
@@ -87,7 +87,7 @@ in {
       condString = name: condAttr name args "";
     in stdenv.mkDerivation (args // {
       inherit src;
-      version = godotVersion;
+      version =  godotVersion.asString;
       platform = godotPlatform;
       # TODO : should we allow custom name ?
       pname = extName + target;

@@ -20,7 +20,7 @@
 
     # the nixpkgs repo
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    
+
   };
 
   outputs = { self, nixpkgs, ... }@inputs:
@@ -29,14 +29,14 @@
       buildArgs = {
         # godot bin name :
         pname = "godot";
-        version = "4.1";
+        version = "4.1.0-beta";
         # ideal options for building godot on nix
         options = {
           use_volk = false;
           use_sowrap = true; # make sure to link to system libraries
           production = true;
           optimize = "speed";
-          lto = "full";
+          lto = "asString";
         };
         withTemplates = true;
       };
@@ -60,7 +60,7 @@
       packages = forAllSystems (pkgs: rec {
         # godot engine 
         godot-engine = (callGodot pkgs).mkGodot buildArgs;
-        default = godot-engine;
+        default =  godot-engine;
       });
 
       # add build functions 

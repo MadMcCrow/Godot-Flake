@@ -7,6 +7,7 @@ with builtins;
 let
   # get lib
   lib = pkgs.lib;
+  strs = lib.strings;
 
   # get version file from godot itself
   godotVersionFile = stdenv.mkDerivation {
@@ -15,33 +16,37 @@ let
     noBuildPhase = true;
     installPhase = ''
       mkdir -p "$out/"
-      ls >> "$out/files.txt"
       cp version.py $out/version.py
     '';
   };
 
+  useDefaultVersion = (version == "");
+
+
   # helper functions 
-  mkPair = separator: str:
-    let split = (lib.strings.splitString separator str);
-    in lib.attrsets.nameValuePair (elemAt split 0) (elemAt split 1);
-  splitLine = lstr: lib.strings.splitString "\n" lstr;
-  replaceChar = r: n: str:
-    (lib.strings.stringAsChars (x: if x == r then n else x) str);
-  removeNewLine = str:
-    lib.strings.stringAsChars (x: if x == "\n" then "" else x) str;
+  removeChars = l: str: strs.stringAsChars (x: if (any (c: x == c) l) then "" else x) str;
+  splitLine   = lstr: (strs.splitString "\n" lstr);
   removeEmpty = l: filter (x: x != "") l;
   hasAllAttrs = names: set: all (x: x) (map (a: hasAttr a set) names);
 
+  mkPair = separator: str:
+    let split = (strs.splitString separator str);
+    in lib.attrsets.nameValuePair (elemAt split 0) (elemAt split 1);
+
   # godot Attribute Set
   godotVersionAttrs = builtins.listToAttrs (map (s: mkPair " = " s) (removeEmpty
-    (map removeNewLine
-      (splitLine (readFile "${godotVersionFile}/version.py")))));
+    (map (removeChars ["\n" "\""]) (splitLine (readFile "${godotVersionFile}/version.py")))));
 
-  # make the final version string
-  pyVersion =
-    if hasAllAttrs [ "major" "minor" "patch" "status" ] godotVersionAttrs then
-      "${godotVersionAttrs.major}.${godotVersionAttrs.minor}.${godotVersionAttrs.patch}-${godotVersionAttrs.status}"
-    else
-      "";
+  # split version
+  v = splitVersion "4.1.0-beta";
 
-in (if version == "" then pyVersion else version)
+# build AttrSet
+in rec {
+    
+    major  = if useDefaultVersion then godotVersionAttrs.major  else (elemAt v 0);
+    minor  = if useDefaultVersion then godotVersionAttrs.minor  else (elemAt v 1);
+    patch  = if useDefaultVersion then godotVersionAttrs.patch  else (elemAt v 2);
+    status = if useDefaultVersion then godotVersionAttrs.status else (elemAt v 3);
+  
+    asString = "${major}.${minor}.${patch}-${status}";
+}

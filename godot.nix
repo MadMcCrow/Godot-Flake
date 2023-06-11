@@ -37,13 +37,13 @@ let
       optionVersion = if hasAttr "version" options then options.version else "";
       platform = import ./platform.nix { inherit system; };
       # get libs for options :
-      nativeBuildInputs = godotLibraries.mkNativeBuildInputs options;
+      nativeBuildInputs   = godotLibraries.mkNativeBuildInputs   options;
       runtimeDependencies = godotLibraries.mkRuntimeDependencies options;
-      buildInputs = godotLibraries.mkBuildInputs options;
+      buildInputs         = godotLibraries.mkBuildInputs         options;
     in {
       inherit platform nativeBuildInputs buildInputs runtimeDependencies;
-      version = godotVersion;
-      name = (concatStringsSep "-" [ pname target godotVersion ]);
+      version = "${godotVersion.asString}";
+      pname = "${pname}-${target}";
       src = inputs.godot;
 
       installPhase = mkInstallPhase { inherit pname version platform target; };
@@ -87,7 +87,7 @@ in {
       # debug template
       godot-debug = mkGodotDerivation "template_debug";
     in pkgs.buildEnv {
-      name = (concatStringsSep "-" [ pname godotVersion ]);
+      name = "${pname}-${godotVersion.asString}";
       paths = [ godot-editor ]
         ++ (if withTemplates then [ godot-release godot-debug ] else [ ]);
     };
