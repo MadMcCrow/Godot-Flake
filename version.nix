@@ -29,12 +29,13 @@ let
   removeEmpty = l: filter (x: x != "") l;
   hasAllAttrs = names: set: all (x: x) (map (a: hasAttr a set) names);
 
-  mkPair = separator: str:
-    let split = (strs.splitString separator str);
+  # build Pairs bas
+  mkPair = str:
+    let split = (strs.splitString  " = " str);
     in lib.attrsets.nameValuePair (elemAt split 0) (elemAt split 1);
 
   # godot Attribute Set
-  godotVersionAttrs = builtins.listToAttrs (map (s: mkPair " = " s) (removeEmpty
+  godotVersionAttrs = builtins.listToAttrs (map mkPair (removeEmpty
     (map (removeChars ["\n" "\""]) (splitLine (readFile "${godotVersionFile}/version.py")))));
 
   # split version

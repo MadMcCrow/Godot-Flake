@@ -36,7 +36,7 @@
           use_sowrap = true; # make sure to link to system libraries
           production = true;
           optimize = "speed";
-          lto = "asString";
+          lto = "full";
         };
         withTemplates = true;
       };

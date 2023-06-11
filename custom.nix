@@ -146,9 +146,6 @@ let
     module_zip_enabled = true;
   };
 
-  customPy = options:
-    if (hasAttr "profile" options) then getAttr "profile" options else "";
-
   # helper functions :
   condAttr = n: s: d: if hasAttr n s then getAttr n s else d;
   # convert true/false to "yes" "no" for scons
@@ -162,6 +159,9 @@ let
         ("${k}=${v}")
       else
         "${k}=${toJSON v}") optionSet);
+
+  # should we use a custom.py file instead
+  customPy = options: if (hasAttr "profile" options) then getAttr "profile" options else "";
 
 in {
 
