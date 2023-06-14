@@ -1,1 +1,0 @@
-{"devShells":{"x86_64-linux":{"default":{"name":"nix-shell","type":"derivation"}}},"lib":{"type":"unknown"},"packages":{"x86_64-linux":{"default":{"name":"godot-flake","type":"derivation"}}}}
