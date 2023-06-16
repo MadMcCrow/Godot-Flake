@@ -161,7 +161,7 @@ let
         "${k}=${toJSON v}") optionSet);
 
   # should we use a custom.py file instead
-  customPy = options: if (hasAttr "profile" options) then getAttr "profile" options else "";
+  customPy = options: condAttr "profile" options "";
 
 in {
 

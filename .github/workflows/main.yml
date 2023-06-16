@@ -55,6 +55,7 @@ jobs:
     strategy:
       fail-fast: false
       max-parallel: 5
+      matrix:
         config: ${{fromJson(needs.generate_matrix.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v3
