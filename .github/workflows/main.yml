@@ -15,16 +15,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: setup-nix
-        uses: cachix/install-nix-action@v19
-        with:
-          extra_nix_config: ${{vars.NIX_EXTRA_CONFIG}}
-          install_url: https://releases.nixos.org/nix/nix-2.12.0/install
+        uses: ./.github/actions/setup-nix
       - name: Update the flake
         run: nix flake update
       - name: Store flake.lock
         uses: actions/upload-artifact@v3
         with:
-          name: flake_lock
+          name: flake-lock
           path: flake.lock
 
  # generate JSONs for future builds and checks
@@ -35,10 +32,7 @@ jobs:
     steps :
       - uses: actions/checkout@v3
       - name: setup-nix
-        uses: cachix/install-nix-action@v19
-        with:
-          extra_nix_config: ${{vars.NIX_EXTRA_CONFIG}}
-          install_url: https://releases.nixos.org/nix/nix-2.12.0/install
+        uses: ./.github/actions/setup-nix
       - name: Generate flake.json
         run: |
           nix flake show --json > flake.json
@@ -60,10 +54,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: setup-nix
-        uses: cachix/install-nix-action@v19
-        with:
-          extra_nix_config: ${{vars.NIX_EXTRA_CONFIG}}
-          install_url: https://releases.nixos.org/nix/nix-2.12.0/install
+        uses: ./.github/actions/setup-nix
       - name: Set up cachix
         uses: cachix/cachix-action@v11
         with:
@@ -73,8 +64,7 @@ jobs:
       - name: Restore flake.lock
         uses: actions/download-artifact@v3
         with:
-          name: flake_lock
-          path: flake.lock
+          name: flake-lock
       - name: Build everything
         run: |
           nix build .#${{ matrix.config }}
@@ -89,7 +79,7 @@ jobs:
     - name: Restore flake.lock
       uses: actions/download-artifact@v3
       with:
-        name: flake_lock
+        name: flake-lock
     - name: Set up git
       run: |
         git config user.email "noe.perard+git@gmail.com"
