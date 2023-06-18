@@ -8,9 +8,9 @@
         "activityBar.background": "#1F3C5E",
         "statusBar.border": "#FFFFFF",
         // godot editor colors
-        "statusBar.background":  "#478CBF", 
+        "statusBar.background":  "#70BAFA", 
         "statusBar.foreground": "#ffffff",
-        "panel.background": "#262C3B",
-        "editor.background": "#202531"
+        "panel.background": "#21262E",
+        "editor.background": "#252B34"
     },
 }

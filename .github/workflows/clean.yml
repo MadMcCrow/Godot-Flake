@@ -1,0 +1,42 @@
+# A workflow to clean the repository from the mess of the Actions
+# removes old actions runs and remaining branches of failed actions
+name: 'Clean repository'
+
+on:
+  push:
+  schedule:
+    - cron: '0 5 * * *'
+
+jobs:
+
+  # delete previous runs
+  del_old_runs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{github.repository}}
+          keep_minimum_runs: 3
+          retain_days: 1 # delete all but the latest, only keeping count
+
+  # remove all branches with "update" in them, as they are produced by the flake updating
+  remove-branches:
+    needs:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+    - name: Set up git
+      run: |
+        git config user.email "noe.perard+git@gmail.com"
+        git config user.name "Git Bot"
+    - name: Remove branches
+      run: |
+          for b in  $(git branch --remote | grep update | sed  s/"origin\/"//);
+          git push origin --delete $b
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
+
+  

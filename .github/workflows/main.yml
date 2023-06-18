@@ -1,9 +1,9 @@
+# A workflow to try to update the flake.lock in this flake
+# it will build godot and push the binaries to cachix
 name: 'Update Flake.Lock'
 
+# only update flakes on a daily basis
 on:
-  push:
-    branches:
-      - main
   schedule:
     - cron: '0 3 * * *'
 
@@ -14,8 +14,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - name: setup-nix
-        uses: ./.github/actions/setup-nix
+      - uses: ./.github/actions/setup-nix
       - name: Update the flake
         run: nix flake update
       - name: Store flake.lock
@@ -31,8 +30,7 @@ jobs:
       matrix: ${{ steps.gen_matrix.outputs.vector }}
     steps :
       - uses: actions/checkout@v3
-      - name: setup-nix
-        uses: ./.github/actions/setup-nix
+      - uses: ./.github/actions/setup-nix 
       - name: Generate flake.json
         run: |
           nix flake show --json > flake.json
@@ -53,8 +51,7 @@ jobs:
         config: ${{fromJson(needs.generate_matrix.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v3
-      - name: setup-nix
-        uses: ./.github/actions/setup-nix
+      - uses: ./.github/actions/setup-nix
       - name: Set up cachix
         uses: cachix/cachix-action@v11
         with:
@@ -99,15 +96,3 @@ jobs:
           gh pr merge $PR --merge --delete-branch
       env:
         GITHUB_TOKEN: ${{ github.token }}
-
-  # clean up (do it at the end)
-  del_old_runs:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Delete workflow runs
-        uses: Mattraks/delete-workflow-runs@v2
-        with:
-          token: ${{ github.token }}
-          repository: ${{github.repository}}
-          keep_minimum_runs: 3
-          retain_days: 1 # delete all but the latest, only keeping count
