@@ -47,12 +47,3 @@ Now you can use :
 ## Github Action
 
 Build, cache and update flake with cachix : ![main](https://github.com/MadMcCrow/Godot-flake/.github/workflows/main.yml/badge.svg)
-
-## TODO :
-
- - [X] Build extensions
- - [X] Regroup Godot and it's templates as a single derivation
- - [X] Expose functions for other flakes
- - [X] Build against a specific nixpkgs
- - [ ] Working Github Action
- - [ ] Add Darwin (MacOS) support via flake-utils
