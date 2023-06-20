@@ -1,15 +1,11 @@
 {
-    "editor.tabCompletion": "on",
-    "diffEditor.codeLens": true,
     // make everything more godot-like
     "workbench.colorCustomizations": {
-        // Godot Logo colors
+        "activityBarBadge.background": "#478CBF",
         "activityBar.activeBorder" : "#478CBF",
-        "activityBar.background": "#1F3C5E",
-        "statusBar.border": "#FFFFFF",
-        // godot editor colors
-        "statusBar.background":  "#70BAFA", 
+        "statusBar.background": "#478CBF",
         "statusBar.foreground": "#ffffff",
+        // Godot panel colors :
         "panel.background": "#21262E",
         "editor.background": "#252B34"
     },
