@@ -53,7 +53,7 @@
       callGodot = pkgs :
         import ./godot.nix { inherit pkgs inputs; system = pkgs.system;};
       callGdExt = pkgs :
-        import ./extension.nix { inherit pkgs inputs; system = pkgs.system;};
+        import ./extensions.nix { inherit pkgs inputs; system = pkgs.system;};
 
     in {
       # pre-defined godot engine 
