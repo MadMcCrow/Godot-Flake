@@ -69,8 +69,16 @@
         libGdExt = callGdExt pkgs;
       });
 
+      # devShell for godot
       devShells = forAllSystems (pkgs: rec {
-        default = (callGodot pkgs).mkGodotShell buildArgs;
+        default = pkgs.symlinkJoin {
+            name = "shell";
+            # both shells
+            paths = [ 
+              (callGodot pkgs).mkGodotShell buildArgs
+              (callGdExt pkgs).mkGodotCPPShell buildArgs
+            ];
+        };
       });
 
     };

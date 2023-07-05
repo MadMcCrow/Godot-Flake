@@ -127,4 +127,26 @@ in {
         cd source
       '' + prepExtension godot-cpp;
     };
+
+     # Make a shell to develop extension
+  mkGodotCPPShell = args @ { pname ? "godot-cpp", options ? { }, ... }:
+    let
+      godotVersion = import ./version.nix { inherit pkgs version inputs; };
+      godotPlatform = import ./platform.nix { inherit system; };
+      godot-cpp = mkGodotCPP args;
+      sconsFlags = godotCustom.mkSconsFlags options;
+      # get a list in a set by name
+      condList = n: s: if hasAttr n s then getAttr n s else [ ];
+    in mkShell {
+      packages = [ breakpointHook cntr ]
+        ++  godotLibraries.mkNativeBuildInputs options
+        ++ godotLibraries.mkBuildInputs options
+        ++  godotLibraries.mkRuntimeDependencies options;
+      inputsFrom = [  godot-cpp  ];
+      src = inputs.godot-cpp;
+      shellHook = ''
+        unpackPhase
+        cd source
+      '';
+    };
 }
