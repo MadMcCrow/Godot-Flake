@@ -5,7 +5,7 @@ name: 'Clean repository'
 on:
   push:
   schedule:
-    - cron: '0 5 * * *'
+    - cron: '0 8 * * *'
 
 jobs:
 
@@ -21,9 +21,8 @@ jobs:
           keep_minimum_runs: 3
           retain_days: 1 # delete all but the latest, only keeping count
 
-  # remove all branches with "update" in them, as they are produced by the flake updating
+  # remove all branches with "updates" in them, as they are produced by the flake updating
   remove-branches:
-    needs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -33,7 +32,7 @@ jobs:
         git config user.name "Git Bot"
     - name: Remove branches
       run: |
-          for b in  $(git branch --remote | grep update | sed  s/"origin\/"//);
+          for b in  $(git branch --remote | grep "/updates-[0-9]*" | sed  s/"origin\/"//);
           git push origin --delete $b
       env:
         GITHUB_TOKEN: ${{ github.token }}
