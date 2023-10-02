@@ -1,5 +1,12 @@
 {
+    // big read :
+    "editor.fontFamily": "'JetBrains Mono', 'Droid Sans Mono', monospace",
+    "editor.fontLigatures": true,
+    "editor.fontSize": 13,
+    "editor.tabCompletion": "on",
     // make everything more godot-like
+    "workbench.colorTheme": "GitHub Dark",
+    "workbench.iconTheme": "material-icon-theme",
     "workbench.colorCustomizations": {
         "activityBarBadge.background": "#478CBF",
         "activityBar.activeBorder" : "#478CBF",
@@ -9,4 +16,11 @@
         "panel.background": "#21262E",
         "editor.background": "#252B34"
     },
-}
+    // debug tools :
+    "anycode.language.features": {
+      "diagnostics": true,
+      "folding": true
+    },
+    // enable code lens
+    "diffEditor.codeLens": true,
+  }

@@ -1,9 +1,11 @@
 ## TODO :
 
- - [X] Build extensions
- - [X] Regroup Godot and it's templates as a single derivation
- - [X] Expose functions for other flakes
- - [X] Build against a specific nixpkgs
- - [X] Custom.py support
+ - [X] Add precommit checks
+ - [X] Flake templates
+ - [X] Flake checks
+ - [ ] Make extension and export function work like OverrideAttrs (ie. have the ability to override or reuse phases etc...)
  - [ ] Working Github Action
  - [ ] Add Darwin (MacOS) support
+ - [ ] Mono build
+ - [ ] Parse custom.py to automatically select correct libs
+ - [ ] Add Cachix cache

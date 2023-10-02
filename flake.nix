@@ -1,7 +1,5 @@
 # Godot is a cross-platform open-source game engine written in C++
-#
 # This flake build godot, the cpp bindings and the export templates
-#
 {
   description = "the godot Engine, and the godot-cpp bindings for extensions";
   inputs = {
@@ -25,61 +23,59 @@
 
   outputs = { self, nixpkgs, ... }@inputs:
     let
-      #default build args
-      buildArgs = {
-        # godot bin name :
-        pname = "godot";
-        version = "4.1.0-beta";
-        # ideal options for building godot on nix
-        options = {
-          use_volk = false;
-          use_sowrap = true; # make sure to link to system libraries
-          production = true;
-          optimize = "speed";
-          lto = "full";
-        };
-        withTemplates = true;
-      };
 
       # only linux supported for now
       systems = [ "x86_64-linux" "aarch64-linux" ];
 
       # helper to build for multiple system
-      forAllSystems = function:
-        nixpkgs.lib.genAttrs systems
-        (system: function nixpkgs.legacyPackages.${system});
+      forAllSystems = f: nixpkgs.lib.genAttrs systems f;
+      forAllSystemPkgs = f:
+        forAllSystems (system: f (nixpkgs.legacyPackages.${system}));
 
-      # helper function
-      callGodot = pkgs :
-        import ./godot.nix { inherit pkgs inputs; system = pkgs.system;};
-      callGdExt = pkgs :
-        import ./extensions.nix { inherit pkgs inputs; system = pkgs.system;};
+      # function to gen godot :
+      mkLib = pkgs:
+        let impArgs = { inherit pkgs inputs; };
+        in {
+          mkGodot = import ./godot.nix impArgs;
+          mkGdext = import ./extension.nix impArgs;
+          mkExport = import ./export.nix impArgs;
+        };
 
     in {
-      # pre-defined godot engine 
-      packages = forAllSystems (pkgs: rec {
-        # godot engine 
-        godot-engine = (callGodot pkgs).mkGodot buildArgs;
-        default =  godot-engine;
-      });
 
-      # add build functions 
-      lib = forAllSystems (pkgs: rec {
-        libGodot = callGodot pkgs;
-        libGdExt = callGdExt pkgs;
-      });
+      # add build functions
+      lib = forAllSystemPkgs mkLib;
 
-      # devShell for godot
-      devShells = forAllSystems (pkgs: rec {
-        default = pkgs.symlinkJoin {
-            name = "shell";
-            # both shells
-            paths = [ 
-              (callGodot pkgs).mkGodotShell buildArgs
-              (callGdExt pkgs).mkGodotCPPShell buildArgs
-            ];
+      # template for godot projects :
+      templates = {
+        default = {
+          path = ./template;
+          description = "A simple Godot-Flake project";
+          welcomeText = "";
         };
-      });
+      };
 
+      # pre-defined godot engine 
+      packages = forAllSystemPkgs (pkgs:
+        let all = (mkLib pkgs).mkGodot { };
+        in all // { default = all.godot; });
+
+      # shell is just unputs for building godot from source
+      devShells = forAllSystemPkgs
+        (pkgs: { default = ((mkLib pkgs).mkGodot { }).shell; });
+
+      # Check that everything builds correctly
+      checks = forAllSystemPkgs (pkgs:
+        let
+          lib = mkLib pkgs;
+          godot = lib.mkGodot { };
+        in {
+          inherit (godot) godot-editor;
+          extension = lib.mkGdext {
+            godot-cpp = godot.godot-cpp;
+            src = "${inputs.godot-cpp}/test";
+            name = "godot-cpp-test";
+          };
+        });
     };
 }

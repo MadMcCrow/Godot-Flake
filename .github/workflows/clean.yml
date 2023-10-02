@@ -26,14 +26,18 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
+    - name: checkout repository
+      uses: actions/checkout@v3
     - name: Set up git
       run: |
         git config user.email "noe.perard+git@gmail.com"
         git config user.name "Git Bot"
     - name: Remove branches
       run: |
-          for b in  $(git branch --remote | grep "/updates-[0-9]*" | sed  s/"origin\/"//);
+        for b in  $(git branch --remote | grep "/updates-[0-9]*" | sed  s/"origin\/"//);
+        do
           git push origin --delete $b
+        done
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
