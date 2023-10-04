@@ -43,12 +43,12 @@ in stdenv.mkDerivation (mergeBuildArgs {
 
   ## copy prebuilt godot-cpp to then build against it
   ## there might be a smarter way to do this (only copy folder structure, link the rest)
-  ## use Sconstruct from godotcpp
-  patchPhase = ''
-    substituteInPlace SConstruct --replace 'env = SConscript("../SConstruct")' 'env = SConscript("godot-cpp/SConstruct")'
+  ## use Sconstruct from godotcpp : 
+  ## Add something like : substituteInPlace SConstruct --replace 'env = SConscript("../SConstruct")' 'env = SConscript("godot-cpp/SConstruct")'
+  postPatch = ''
     mkdir -p godot-cpp
     cp -r ${godot-cpp}/* ./godot-cpp/
-    chmod 777 -R godot-cpp
+    chmod 755 -R godot-cpp
   '';
 
   installPhase = ''
