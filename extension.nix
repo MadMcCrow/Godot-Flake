@@ -24,11 +24,16 @@ let
   buildArgs = removeAttrs args [ "target" "godot-cpp" ];
   # and merge build Args given by user with ours : 
   mergeBuildArgs = drvArgs:
+    let
+    drvAttr = (getAttr name drvArgs);
+    in 
     drvArgs // (mapAttrs (name: value:
-      if (hasAttr name drvArgs) && (isList value) then
-        value ++ (getAttr name drvArgs)
+      if hasAttr name drvArgs  then
+      (if isList value then value ++ drvAttr
       else
-        value) buildArgs);
+      (if isString value then concatStringsSep "\n" [value + drvAttr]
+      else value))
+      else value) buildArgs);
 
 # implementation
 in stdenv.mkDerivation (mergeBuildArgs {
