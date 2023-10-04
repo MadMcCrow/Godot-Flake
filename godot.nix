@@ -226,7 +226,7 @@ let
       ./patches/godot-cpp.patch # fix path for g++
     ];
     # build flags 
-    sconsFlags = [ "generate_bindings=true" ] ++ godot-editor.sconsFlags;
+    sconsFlags = [ "generate_bindings=true" "-s"] ++ godot-editor.sconsFlags;
 
     # maybe split outputs ["SConstruct" "binding_generator" ... ]
     outputs = [ "out" ];

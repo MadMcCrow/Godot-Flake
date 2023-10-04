@@ -36,6 +36,9 @@ in stdenv.mkDerivation (mergeBuildArgs {
   inherit (godot-cpp) buildInputs runtimeDependencies;
   nativeBuildInputs = [ godot-cpp ] ++ godot-cpp.nativeBuildInputs;
 
+  # already in godot-cpp flags, but it does not hurt to add
+  sconsFlags = godot-cpp.sconsFlags ++ ["-s"];
+
   #unpackPhase = '' cp -r $src ./ '';
 
   ## copy prebuilt godot-cpp to then build against it
