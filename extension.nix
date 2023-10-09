@@ -28,12 +28,13 @@ let
     drvAttr = (getAttr name drvArgs);
     in 
     drvArgs // (mapAttrs (name: value:
-      if hasAttr name drvArgs  then
+      if (hasAttr name drvArgs)  then 
       (if isList value then value ++ drvAttr
       else
-      (if isString value then concatStringsSep "\n" [value + drvAttr]
-      else value))
-      else value) buildArgs);
+      (if isString value then concatStringsSep "\n" [value drvAttr] else value)
+      )
+      else value) 
+      buildArgs);
 
 # implementation
 in stdenv.mkDerivation (mergeBuildArgs {
