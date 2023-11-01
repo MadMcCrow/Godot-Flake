@@ -23,23 +23,16 @@ let
   # remove what mkDerivation does not need
   buildArgs = removeAttrs args [ "target" "godot-cpp" ];
   # and merge build Args given by user with ours : 
-  mergeBuildArgs = drvArgs:
-    let
-    drvAttr = (getAttr name drvArgs);
-    in 
-    drvArgs // (mapAttrs (name: value:
-      if (hasAttr name drvArgs)  then 
-      (if isList value then value ++ drvAttr
-      else
-      (if isString value then concatStringsSep "\n" [value drvAttr] else value)
-      )
-      else value) 
-      buildArgs);
+
+
+  inputs = {
+    inherit (godot-cpp) buildInputs runtimeDependencies;
+  }
 
 # implementation
 in stdenv.mkDerivation (mergeBuildArgs {
   inherit src name;
-  inherit (godot-cpp) buildInputs runtimeDependencies;
+  
   nativeBuildInputs = [ godot-cpp ] ++ godot-cpp.nativeBuildInputs;
 
   # already in godot-cpp flags, but it does not hurt to add
