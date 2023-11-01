@@ -33,13 +33,11 @@
         forAllSystems (system: f (nixpkgs.legacyPackages.${system}));
 
       # function to gen godot :
-      mkLib = pkgs:
-        let impArgs = { inherit pkgs inputs; };
-        in {
-          mkGodot = import ./godot.nix impArgs;
-          mkGdext = import ./extension.nix impArgs;
-          mkExport = import ./export.nix impArgs;
-        };
+      mkLib = pkgs: {
+        mkGodot = args: import ./godot.nix { inherit pkgs inputs; } args;
+        mkGdext = args: import ./extension.nix pkgs args;
+        mkExport = args: import ./export.nix pkgs args;
+      };
 
     in {
 
