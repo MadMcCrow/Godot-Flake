@@ -178,7 +178,7 @@ let
     version = "${version.asString}";
     src = inputs.godot;
     # nixpkgs use Godot4 and godot4 instead of godot, so we replace
-    installPhase = replaceStrings ["odot4"] ["odot"] nix-godot.installPhase;
+    installPhase = replaceStrings [ "odot4" ] [ "odot" ] nix-godot.installPhase;
     enableParallelBuilding = true;
     sconsFlags = mkSconsFlags "editor";
     # apply the necessary patches
@@ -212,7 +212,7 @@ let
   godot-cpp = let target = "editor"; # no needs for other targets
   in stdenv.mkDerivation {
     inherit buildInputs runtimeDependencies;
-    nativeBuildInputs = nativeBuildInputs ++ [godot-editor];
+    nativeBuildInputs = nativeBuildInputs ++ [ godot-editor ];
     # make name:
     name = "godot-cpp-${target}-${version.asString}";
     version = version.asString;
@@ -226,7 +226,7 @@ let
       ./patches/godot-cpp.patch # fix path for g++
     ];
     # build flags 
-    sconsFlags = [ "generate_bindings=true" "-s"] ++ godot-editor.sconsFlags;
+    sconsFlags = [ "generate_bindings=true" "-s" ] ++ godot-editor.sconsFlags;
 
     # maybe split outputs ["SConstruct" "binding_generator" ... ]
     outputs = [ "out" ];
