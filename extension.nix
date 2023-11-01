@@ -1,12 +1,12 @@
 # extension.nix
 # this modules focuses on building cool extensions for godot
 { pkgs, ... }:
-{ name, src, godot-cpp # the godot cpp to build against
+{ name
+, src
+, godot-cpp
 , ... }@args:
 with builtins;
 let
-  # shortcuts
-
   # extension file for the engine
   # TODO : linux aarch64
   # TODO : darwin
@@ -17,18 +17,10 @@ let
     linux.x86_64 = "res://bin/x11/lib${name}.so"
   '';
 
-  # remove what mkDerivation does not need
-  buildArgs = removeAttrs args [ "target" "godot-cpp" ];
-
   # implementation
-in pkgs.stdenv.mkDerivation (pkgs.lib.mkMerge [
-  {
-    inherit src name;
+in pkgs.stdenv.mkDerivation {
     nativeBuildInputs = [ godot-cpp ] ++ godot-cpp.nativeBuildInputs;
-
-    # already in godot-cpp flags, but it does not hurt to add
     sconsFlags = godot-cpp.sconsFlags ++ [ "-s" ];
-
     #unpackPhase = '' cp -r $src ./ '';
 
     ## copy prebuilt godot-cpp to then build against it
@@ -40,12 +32,9 @@ in pkgs.stdenv.mkDerivation (pkgs.lib.mkMerge [
       cp -r ${godot-cpp}/* ./godot-cpp/
       chmod 755 -R godot-cpp
     '';
-
     installPhase = ''
       mkdir -p $out/bin
       cp bin/*.so $out/bin/lib${name}.so
       cp ${ext_file} $out/${name}.gdextension
     '';
-  }
-  args
-])
+  } // (removeAttrs args ["godot-cpp"])
