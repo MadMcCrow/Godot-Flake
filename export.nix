@@ -13,7 +13,7 @@ let
   # result derivation
 in pkgs.stdenv.mkDerivation ({
   inherit name src;
-  nativeBuildInputs = [ godot breakpointHook ] ++ nativeBuildInputs;
+  nativeBuildInputs = [ godot pkgs.breakpointHook ] ++ nativeBuildInputs;
   buildPhase =
     "${godot}/bin/godot --export ${templateName} ${name}${linux_ext}";
   installPhase = ''
