@@ -1,4 +1,4 @@
-# Godot-Flake
+# Godot-Flake [![built with nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
 ## Godot
 godot is a cross-platform open-source game engine written in C++ 
 [godot website](godotengine.org/)

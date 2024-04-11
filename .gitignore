@@ -1,7 +1,8 @@
 #!/usr/bin/git
-
 # NIX
 ## result from `nix build`
 result
 ## result of `nix develop`
 source
+## MacOS files:
+.DS_Store
