@@ -30,26 +30,25 @@
     in rec {
       # template for godot projects :
       templates.default = {
-          path = ./template;
-          description = "A simple Godot-Flake project";
-          welcomeText = "Start building your godot game Now !";
+        path = ./template;
+        description = "A simple Godot-Flake project";
+        welcomeText = "Start building your godot game Now !";
       };
 
       # pre-defined godot engine 
       packages = forAllSystems (system: rec {
-        godot = import ./godot {
+        godot = (import ./godot {
           pkgs = nixpkgs.legacyPackages."${system}";
           inherit inputs;
-        };
+        }).editor;
         default = godot;
       });
 
       # shell is just inputs for building godot from source
       devShells = forAllSystems (system: {
         default = nixpkgs.legacyPackages."${system}".mkShell {
-          inputsFrom = [packages."${system}".godot];
-          shellHook = ''
-          '';
+          inputsFrom = [ packages."${system}".godot ];
+          shellHook = "";
         };
       });
 

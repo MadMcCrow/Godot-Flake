@@ -1,6 +1,6 @@
 # version.nix
 # get the godot version with IFD
-{ inputs, pkgs }:
+{ inputs, pkgs, ... }:
 with builtins;
 let
   inherit (pkgs.lib) strings attrsets;
@@ -26,7 +26,4 @@ let
       (splitLine (readFile "${godotVersionFile}/version.py")))));
 
   # build AttrSet
-in ({
-  asString =
-    "${godotVersionAttrs.major}.${godotVersionAttrs.minor}.${godotVersionAttrs.patch}-${godotVersionAttrs.status}";
-} // godotVersionAttrs)
+in "${godotVersionAttrs.major}.${godotVersionAttrs.minor}.${godotVersionAttrs.patch}-${godotVersionAttrs.status}"

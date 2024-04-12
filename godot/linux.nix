@@ -1,12 +1,13 @@
 # linux.nix
 # linux build Attributes
-{ pkgs, options , ...}:
+{ pkgs, options, ... }:
 let
   # shortcuts
   inherit (pkgs.lib.lists) optionals;
-  hasOptions = key: if options ? key then options.${key} == "yes" else false;
 
-  # lookup options
+ hasOptions = key: if (options ? key) then options.${key} == "yes" else false;
+ # lookup options
+ # todo : clean that !
   use_x11 = hasOptions "use_x11";
   use_openGL = hasOptions "use_OpenGL";
   use_mono = hasOptions "use_mono";
@@ -74,7 +75,17 @@ let
       gcc
     ] ++ optionals use_llvm libllvm;
 
-in {
+in pkgs.stdenv.mkDerivation rec {
+  # basic stuff :
+  pname = "godot";
+  inherit version;
+  src = inputs.godot;
+
+  sconsFlags = [
+    "platform=linux"
+  ]
+  ++ (map (x: "${x}=${options."${x}"}") (builtins.attrNames options));
+
 
   # As a rule of thumb: Buildtools as nativeBuildInputs,
   # libraries and executables you only need after the build as buildInputs
@@ -100,5 +111,4 @@ in {
   # steal nixpkgs installPhase
   # nixpkgs use Godot4 and godot4 instead of godot, so we replace
   installPhase = replaceStrings [ "odot4" ] [ "odot" ] pkgs.godot4.installPhase;
-
 }

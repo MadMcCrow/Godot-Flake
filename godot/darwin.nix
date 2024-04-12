@@ -1,111 +1,124 @@
 # darwin.nix
 # MacOS build Attributes
-{ pkgs, options, inputs }: 
+{ pkgs, options, version, inputs, ... }:
 let
-  inherit (pkgs.lib.lists) optionals;
+  inherit (pkgs.lib.lists) optionals remove;
 
   # we cannot use pkgs.staticPkgs.darwin.moltenvk
   # as it fails to build
   mvk = pkgs.darwin.moltenvk;
   # we then must use volk to build godot binary 
-  options.use_volk = true;
+  # TODO : options.use_volk = true;
 
-  CLibraries = let HeaderPath =  name:
-  ''${pkgs.darwin.apple_sdk.frameworks."${name}"}/Library/Frameworks/${name}.framework/Versions/C/Headers/${name}.h'';
-  in
-  pkgs.stdenvNoCC.mkDerivation {
+  CLibraries = let
+    HeaderPath = name:
+      "${
+        pkgs.darwin.apple_sdk.frameworks."${name}"
+      }/Library/Frameworks/${name}.framework/Versions/C/Headers/${name}.h";
+  in pkgs.stdenvNoCC.mkDerivation {
     name = "MacOS_SDK_CHeaders";
-    phases = ["installPhase"];
-    installPhase = map (x : ''
-    mkdir -p $out/include/${x}
-    cp -r ${HeaderPath x} $out/include/${x}/${x}.h
-    '') ["AppKit"];
+    phases = [ "installPhase" ];
+    installPhase = map (x: ''
+      mkdir -p $out/include/${x}
+      cp -r ${HeaderPath x} $out/include/${x}/${x}.h
+    '') [ "AppKit" ];
   };
 
-  hasOptions = key: if (builtins.hasAttr key options) then options.${key} == "yes" else false;
-
-  # vulkan support is moltenvk
-  vk = optionals (hasOptions "use_vulkan") [
-    mvk
-    mvk.dev
-  ];
-
-  # OpenGL libraries
-  ogl = optionals (hasOptions "use_OpenGL") (with pkgs; [
-    glslang
-    libGLU
-    libGL
-  ]);
+  hasOptions = key:
+    if (builtins.hasAttr key options) then options.${key} == "yes" else false;
 
   # mono/C#
   # TODO : test what version of mono/dotnet is required
-  mono = optionals ( hasOptions "use_mono") 
-  (with pkgs; [ mono6 msbuild dotnetPackages.Nuget ]);
+  mono = optionals (hasOptions "use_mono")
+    (with pkgs; [ mono6 msbuild dotnetPackages.Nuget ]);
 
-  # llvm compiler
-  libllvm = optionals ( hasOptions "use_llvm")
-   (with pkgs; [
+  apple-sdk = with pkgs.darwin.apple_sdk;
+  # every framework listed in detect.py 
+    [
+      MacOSX-SDK
+      frameworks.AppKit
+      frameworks.Foundation
+      frameworks.Cocoa
+      frameworks.Carbon
+      frameworks.AudioUnit
+      frameworks.CoreAudio
+      frameworks.CoreMIDI
+      frameworks.IOKit
+      frameworks.GameController
+      frameworks.CoreHaptics
+      frameworks.CoreVideo
+      frameworks.AVFoundation
+      frameworks.CoreMedia
+      frameworks.QuartzCore
+      frameworks.Security
+    ];
+
+  # build 
+in pkgs.stdenv.mkDerivation rec {
+  # basic stuff :
+  pname = "godot";
+  inherit version;
+  src = inputs.godot;
+  sandbox = true;
+  # build flags :
+  sconsFlags = [
+    "platform=macos"
+    "use_llvm=yes"
+  ]
+  # append all options (except no llvm)
+    ++ remove "use_llvm=no"
+    (map (x: "${x}=${options."${x}"}") (builtins.attrNames options));
+
+  # requirements to build godot on MacOS
+  nativeBuildInputs = apple-sdk ++ (with pkgs; [
+    scons
+    pkg-config
+    installShellFiles
+    bashInteractive
+    darwin.libobjc
+    darwin.objc4
+    xcbuild
+    xcodebuild
     llvm
     lld
     clang
     clangStdenv
     llvmPackages.libcxxClang
     llvmPackages.clangUseLLVM
-  ]);
+  ])
+  # static vulkan if no Volk
+    ++ (optionals (hasOptions "use_vulkan" && !hasOptions "use_volk")
+      (with pkgs.pkgsStatic; [ mvk mvk.dev ])) ++ buildInputs;
 
-  # absolutely needed libs for runtime
-  libRuntime = with pkgs; [
-    freetype
-    openssl
-    fontconfig.lib
-    libxkbcommon
-  ];
-
-  buildTools = with pkgs;
-    [
-      scons
-      pkg-config
-      installShellFiles
-      bashInteractive
-    ] ++ libllvm;
-
-
-in {
-  sconsFlags = [ "platform=macos" ];
-
- nativeBuildInputs = [pkgs.darwin.apple_sdk.MacOSX-SDK] ++
- # every framework listed in detect.py 
- (with pkgs.darwin.apple_sdk.frameworks; [
-  AppKit
-  Foundation
-  Cocoa
-  Carbon
-  #AudioUnit
-  #CoreAudio
-  #CoreMIDI
-  #IOKit
-  #GameController
-  #CoreHaptics
-  #CoreVideo
-  #AVFoundation
-  #CoreMedia
-  #QuartzCore
-  #Security
-  ]) ++
- (with pkgs; [xcbuild xcodebuild]) ++ buildTools
-    ++ ogl ++ mono
-    ++ vk;
-
-  buildInputs = [ pkgs.zlib pkgs.yasm ] ++ mono
-    ++ ogl 
-    ++  vk;
+  buildInputs = apple-sdk ++ [ pkgs.zlib pkgs.yasm ] ++ runtimeDependencies;
 
   # runtime dependencies
-  runtimeDependencies = libRuntime ++ mono ++ ogl
-    ++ vk;
+  runtimeDependencies = with pkgs;
+    [
+      freetype
+      openssl
+      fontconfig.lib
+      libxkbcommon
+    ]
+    # open GL 
+    ++ (optionals (hasOptions "use_OpenGL")
+      (with pkgs; [ glslang libGLU libGL ]))
+    # vulkan if not statically built
+    ++ (optionals (hasOptions "use_vulkan" && hasOptions "use_volk")
+      (with pkgs; [ mvk mvk.dev ]));
 
   installPhase = ''
-  ls -la
-  ffrefrf
+    ls -la
+    ffrefrf
   '';
+
+  # meta is shared between systems
+  meta = with pkgs.lib; {
+    # TODO: add correct platform list
+    platforms = [ pkgs.stdenv.system ];
+    homepage = pkgs.godot_4.meta.homepage;
+    description = pkgs.godot_4.meta.description;
+    license = licenses.mit;
+    mainProgram = "godot";
+  };
 }
