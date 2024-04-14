@@ -32,34 +32,41 @@ let
   mono = optionals (hasOptions "use_mono")
     (with pkgs; [ mono6 msbuild dotnetPackages.Nuget ]);
 
-  apple-sdk = with pkgs.darwin.apple_sdk;
+  # all apple packages :
+  apple_pkgs = with pkgs.darwin;
+  [
+    libobjc
+    apple_sdk.xcodebuild
+    apple_sdk.MacOSX-SDK
+  ] ++
+  (with pkgs.darwin.apple_sdk.frameworks;
   # every framework listed in detect.py 
     [
-      MacOSX-SDK
-      frameworks.AppKit
-      frameworks.Foundation
-      frameworks.Cocoa
-      frameworks.Carbon
-      frameworks.AudioUnit
-      frameworks.CoreAudio
-      frameworks.CoreMIDI
-      frameworks.IOKit
-      frameworks.GameController
-      frameworks.CoreHaptics
-      frameworks.CoreVideo
-      frameworks.AVFoundation
-      frameworks.CoreMedia
-      frameworks.QuartzCore
-      frameworks.Security
-    ];
+      AppKit
+      Foundation
+      Cocoa
+      Carbon
+      AudioUnit
+      CoreAudio
+      CoreMIDI
+      IOKit
+      GameController
+      CoreHaptics
+      CoreVideo
+      AVFoundation
+      CoreMedia
+      QuartzCore
+      Security
+      OpenGL
+    ]);
 
   # build 
-in pkgs.stdenv.mkDerivation rec {
+in pkgs.darwin.apple_sdk.stdenv.mkDerivation rec {
   # basic stuff :
   pname = "godot";
   inherit version;
   src = inputs.godot;
-  sandbox = true;
+  sandbox = false;
   # build flags :
   sconsFlags = [
     "platform=macos"
@@ -70,27 +77,25 @@ in pkgs.stdenv.mkDerivation rec {
     (map (x: "${x}=${options."${x}"}") (builtins.attrNames options));
 
   # requirements to build godot on MacOS
-  nativeBuildInputs = apple-sdk ++ (with pkgs; [
+  nativeBuildInputs = apple_pkgs ++ (with pkgs; [
     scons
     pkg-config
     installShellFiles
     bashInteractive
-    darwin.libobjc
-    darwin.objc4
-    xcbuild
-    xcodebuild
-    llvm
-    lld
-    clang
-    clangStdenv
-    llvmPackages.libcxxClang
-    llvmPackages.clangUseLLVM
+    xorg.libXcomposite
+    xorg.libXcursor
+    xorg.libXi
+    xorg.libXrandr
+    xorg.libXrender
   ])
   # static vulkan if no Volk
     ++ (optionals (hasOptions "use_vulkan" && !hasOptions "use_volk")
       (with pkgs.pkgsStatic; [ mvk mvk.dev ])) ++ buildInputs;
 
-  buildInputs = apple-sdk ++ [ pkgs.zlib pkgs.yasm ] ++ runtimeDependencies;
+  buildInputs = apple_pkgs ++ [ pkgs.zlib pkgs.yasm ] ++ runtimeDependencies;
+
+  NIX_LDFLAGS =  [ "-framework" "AppKit" ];
+
 
   # runtime dependencies
   runtimeDependencies = with pkgs;
@@ -108,8 +113,9 @@ in pkgs.stdenv.mkDerivation rec {
       (with pkgs; [ mvk mvk.dev ]));
 
   installPhase = ''
+    echo "TODO !"
     ls -la
-    ffrefrf
+    breakpointHook
   '';
 
   # meta is shared between systems

@@ -7,30 +7,9 @@ godot is a cross-platform open-source game engine written in C++
 ## Flake
 see [Nixos Wiki](https://nixos.wiki/wiki/Flakes), [Nixos Manual](https://nixos.org/manual/nix/unstable/command-ref/new-cli/nix3-flake.html).
 
-supported systems are `x86_64-linux` and `aarch64-linux`. `aarch64-darwin` is not supported yet.
-```
-# nix flake show --allow-import-from-derivation
-├───checks
-│   └───x86_64-linux
-│       ├───extension: derivation 'godot-cpp-test'
-│       └───godot-editor: derivation 'godot-editor-4.2.0-dev'
-├───devShells
-│   └───x86_64-linux
-│       └───default: development environment 'nix-shell'
-├───lib: unknown
-├───packages
-│   ├───x86_64-linux
-│   │   ├───default 
-│   │   ├───godot 
-│   │   ├───godot-cpp 
-│   │   ├───godot-debug 
-│   │   ├───godot-editor 
-│   │   ├───godot-release 
-│   │   └───shell 
-└───templates
-    └───default: template: A simple Godot-Flake project
-```
+This project exist to help bootstrap development of godot projects with CI and multiplatform support.
 
+supported systems are `x86_64-linux` and `aarch64-linux`. `aarch64-darwin` is not supported yet.
 
 ## Usage
 
