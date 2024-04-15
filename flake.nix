@@ -15,7 +15,7 @@
     };
     # the nixpkgs repo
     # we're using the release branch for stability
-    nixpkgs.url = "github:nixos/nixpkgs/release-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-23.11-darwin";
   };
 
   outputs = { self, nixpkgs, ... }@inputs:

@@ -3,6 +3,7 @@
 { pkgs, options, version, inputs, ... }:
 let
   inherit (pkgs.lib.lists) optionals remove;
+  inherit (pkgs.lib.strings) concatMapStrings;
 
   # we cannot use pkgs.staticPkgs.darwin.moltenvk
   # as it fails to build
@@ -32,15 +33,8 @@ let
   mono = optionals (hasOptions "use_mono")
     (with pkgs; [ mono6 msbuild dotnetPackages.Nuget ]);
 
-  # all apple packages :
-  apple_pkgs = with pkgs.darwin;
-  [
-    libobjc
-    apple_sdk.xcodebuild
-    apple_sdk.MacOSX-SDK
-  ] ++
-  (with pkgs.darwin.apple_sdk.frameworks;
-  # every framework listed in detect.py 
+  apple_frameworks = with pkgs.darwin.apple_sdk.frameworks;
+    # every framework listed in detect.py 
     [
       AppKit
       Foundation
@@ -58,7 +52,15 @@ let
       QuartzCore
       Security
       OpenGL
-    ]);
+    ];
+    apple_framework_ccflags = builtins.concatStringsSep " " (map (x: "-iframework${x}/System/Library/Frameworks") apple_frameworks);
+  # all apple packages :
+  apple_pkgs = with pkgs.darwin;
+  [
+    libobjc
+    apple_sdk.xcodebuild
+    apple_sdk.MacOSX-SDK
+  ] ++ apple_frameworks;
 
   # build 
 in pkgs.darwin.apple_sdk.stdenv.mkDerivation rec {
@@ -71,12 +73,33 @@ in pkgs.darwin.apple_sdk.stdenv.mkDerivation rec {
   sconsFlags = [
     "platform=macos"
     "use_llvm=yes"
+    "verbose=yes"
   ]
   # append all options (except no llvm)
     ++ remove "use_llvm=no"
     (map (x: "${x}=${options."${x}"}") (builtins.attrNames options));
+  
+  patches = [./patches/apple_sdk.patch];
+  # pass values that have whitespaces in them
+  postPatch = with pkgs.darwin.apple_sdk.frameworks; ''
+  substituteInPlace ./platform/macos/detect.py \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/AppKit"         "-iframework${AppKit}/System/Library/Frameworks" \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/Cocoa"          "-iframework${Cocoa}/System/Library/Frameworks" \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/Carbon"         "-iframework${Carbon}/System/Library/Framework" \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/AudioUnit"      "-iframework${AudioUnit}/System/Library/Framework" \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/CoreAudio"      "-iframework${CoreAudio}/System/Library/Framework" \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/CoreMIDI"       "-iframework${CoreMIDI}/System/Library/Framework" \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/IOKit"          "-iframework${IOKit}/System/Library/Framework" \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/GameController" "-iframework${GameController}/System/Library/Framework" \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/CoreHaptics"    "-iframework${CoreHaptics}/System/Library/Framework" \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/CoreVideo"      "-iframework${CoreVideo}/System/Library/Framework" \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/AVFoundation"   "-iframework${AVFoundation}/System/Library/Framework" \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/CoreMedia"      "-iframework${CoreMedia}/System/Library/Framework" \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/QuartzCore"     "-iframework${QuartzCore}/System/Library/Framework" \
+  --replace "-iframework{MACOS_SDK_PATH}/System/Library/Security"       "-iframework${Security}/System/Library/Framework"
+  '';
 
-  # requirements to build godot on MacOS
+  # requirements to" "-iframework${de}/System/Library/Framework" build godot on MacOS
   nativeBuildInputs = apple_pkgs ++ (with pkgs; [
     scons
     pkg-config

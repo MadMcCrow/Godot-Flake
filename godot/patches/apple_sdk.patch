@@ -1,0 +1,151 @@
+diff --git a/platform/macos/SCsub b/platform/macos/SCsub
+index 59ef4ee85c..f3d7189c4e 100644
+--- a/platform/macos/SCsub
++++ b/platform/macos/SCsub
+@@ -2,7 +2,7 @@
+ 
+ Import("env")
+ 
+-import os, json
++import os, json, sys
+ from platform_methods import architectures, lipo, get_build_version
+ import platform_macos_builders
+ import subprocess
+@@ -130,4 +130,4 @@ if env["debug_symbols"] and env["separate_debug_symbols"]:
+ if env["generate_bundle"]:
+     generate_bundle_command = env.Command("generate_bundle", [], generate_bundle)
+     command = env.AlwaysBuild(generate_bundle_command)
+-    env.Depends(command, [prog])
++    env.Depends(command, [prog])
+\ No newline at end of file
+diff --git a/platform/macos/detect.py b/platform/macos/detect.py
+index 3c8b1ebee1..1068d2b3e6 100644
+--- a/platform/macos/detect.py
++++ b/platform/macos/detect.py
+@@ -1,5 +1,6 @@
+ import os
+ import sys
++from subprocess import run
+ from methods import detect_darwin_sdk_path, get_compiler_version, is_vanilla_clang
+ from platform_methods import detect_arch, detect_mvk
+ 
+@@ -8,11 +9,50 @@ from typing import TYPE_CHECKING
+ if TYPE_CHECKING:
+     from SCons.Script.SConscript import SConsEnvironment
+ 
++_xcrun = run(["xcrun", "--sdk", "macosx", "--show-sdk-path"], capture_output=True)
++MACOS_SDK_PATH=_xcrun.stdout.decode('utf8').removesuffix('\n')
++
++
++# MacOS SDK Frameworks
++FRAMEWORKS=[
++            "AppKit",
++            "Cocoa",
++            "Carbon",
++            "AudioUnit",
++            "CoreAudio",
++            "CoreMIDI",
++            "IOKit",
++            "GameController",
++            "CoreHaptics",
++            "CoreVideo",
++            "AVFoundation",
++            "CoreMedia",
++            "QuartzCore",
++            "Security"
++        ]
++
++# Path for inclusion
++# Nix will patch this
++FRAMEWORKS_INCLUDES = [
++            f"-iframework{MACOS_SDK_PATH}/System/Library/AppKit",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/Cocoa",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/Carbon",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/AudioUnit",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/CoreAudio",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/CoreMIDI",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/IOKit",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/GameController",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/CoreHaptics",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/CoreVideo",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/AVFoundation",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/CoreMedia",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/QuartzCore",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/Security"
++        ]
+ 
+ def get_name():
+     return "macOS"
+ 
+-
+ def can_build():
+     if sys.platform == "darwin" or ("OSXCROSS_ROOT" in os.environ):
+         return True
+@@ -25,7 +65,7 @@ def get_opts():
+ 
+     return [
+         ("osxcross_sdk", "OSXCross SDK version", "darwin16"),
+-        ("MACOS_SDK_PATH", "Path to the macOS SDK", ""),
++        ("MACOS_SDK_PATH", "Path to the macOS SDK", MACOS_SDK_PATH),
+         ("vulkan_sdk_path", "Path to the Vulkan SDK", ""),
+         EnumVariable("macports_clang", "Build using Clang from MacPorts", "no", ("no", "5.0", "devel")),
+         BoolVariable("use_ubsan", "Use LLVM/GCC compiler undefined behavior sanitizer (UBSAN)", False),
+@@ -79,7 +119,7 @@ def configure(env: "SConsEnvironment"):
+         env.Prepend(LINKFLAGS=["-Xlinker", "-no_deduplicate"])
+ 
+     ## Compiler configuration
+-
++    
+     # Save this in environment for use by other modules
+     if "OSXCROSS_ROOT" in os.environ:
+         env["osxcross"] = True
+@@ -121,8 +161,8 @@ def configure(env: "SConsEnvironment"):
+             env["CXX"] = "clang++"
+ 
+         detect_darwin_sdk_path("macos", env)
+-        env.Append(CCFLAGS=["-isysroot", "$MACOS_SDK_PATH"])
+-        env.Append(LINKFLAGS=["-isysroot", "$MACOS_SDK_PATH"])
++        env.Append(CCFLAGS=["-isysroot", MACOS_SDK_PATH])
++        env.Append(LINKFLAGS=["-isysroot", MACOS_SDK_PATH])
+ 
+     else:  # osxcross build
+         root = os.environ.get("OSXCROSS_ROOT", "")
+@@ -193,36 +233,8 @@ def configure(env: "SConsEnvironment"):
+ 
+     env.Prepend(CPPPATH=["#platform/macos"])
+     env.Append(CPPDEFINES=["MACOS_ENABLED", "UNIX_ENABLED", "COREAUDIO_ENABLED", "COREMIDI_ENABLED"])
+-    env.Append(
+-        LINKFLAGS=[
+-            "-framework",
+-            "Cocoa",
+-            "-framework",
+-            "Carbon",
+-            "-framework",
+-            "AudioUnit",
+-            "-framework",
+-            "CoreAudio",
+-            "-framework",
+-            "CoreMIDI",
+-            "-framework",
+-            "IOKit",
+-            "-framework",
+-            "GameController",
+-            "-framework",
+-            "CoreHaptics",
+-            "-framework",
+-            "CoreVideo",
+-            "-framework",
+-            "AVFoundation",
+-            "-framework",
+-            "CoreMedia",
+-            "-framework",
+-            "QuartzCore",
+-            "-framework",
+-            "Security",
+-        ]
+-    )
++    env.Append(FRAMEWORKS=FRAMEWORKS)
++    env.Append(CCFLAGS=FRAMEWORKS_INCLUDES)
+     env.Append(LIBS=["pthread", "z"])
+ 
+     if env["opengl3"]:
