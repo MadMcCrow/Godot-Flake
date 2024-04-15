@@ -19,7 +19,7 @@ index 59ef4ee85c..f3d7189c4e 100644
 +    env.Depends(command, [prog])
 \ No newline at end of file
 diff --git a/platform/macos/detect.py b/platform/macos/detect.py
-index 3c8b1ebee1..1068d2b3e6 100644
+index 3c8b1ebee1..1a4db17454 100644
 --- a/platform/macos/detect.py
 +++ b/platform/macos/detect.py
 @@ -1,5 +1,6 @@
@@ -29,7 +29,7 @@ index 3c8b1ebee1..1068d2b3e6 100644
  from methods import detect_darwin_sdk_path, get_compiler_version, is_vanilla_clang
  from platform_methods import detect_arch, detect_mvk
  
-@@ -8,11 +9,50 @@ from typing import TYPE_CHECKING
+@@ -8,11 +9,54 @@ from typing import TYPE_CHECKING
  if TYPE_CHECKING:
      from SCons.Script.SConscript import SConsEnvironment
  
@@ -40,6 +40,8 @@ index 3c8b1ebee1..1068d2b3e6 100644
 +# MacOS SDK Frameworks
 +FRAMEWORKS=[
 +            "AppKit",
++            "CoreFoundation",
++            "Foundation",
 +            "Cocoa",
 +            "Carbon",
 +            "AudioUnit",
@@ -59,6 +61,8 @@ index 3c8b1ebee1..1068d2b3e6 100644
 +# Nix will patch this
 +FRAMEWORKS_INCLUDES = [
 +            f"-iframework{MACOS_SDK_PATH}/System/Library/AppKit",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/CoreFoundation",
++            f"-iframework{MACOS_SDK_PATH}/System/Library/Foundation",
 +            f"-iframework{MACOS_SDK_PATH}/System/Library/Cocoa",
 +            f"-iframework{MACOS_SDK_PATH}/System/Library/Carbon",
 +            f"-iframework{MACOS_SDK_PATH}/System/Library/AudioUnit",
@@ -81,7 +85,7 @@ index 3c8b1ebee1..1068d2b3e6 100644
  def can_build():
      if sys.platform == "darwin" or ("OSXCROSS_ROOT" in os.environ):
          return True
-@@ -25,7 +65,7 @@ def get_opts():
+@@ -25,7 +69,7 @@ def get_opts():
  
      return [
          ("osxcross_sdk", "OSXCross SDK version", "darwin16"),
@@ -90,7 +94,7 @@ index 3c8b1ebee1..1068d2b3e6 100644
          ("vulkan_sdk_path", "Path to the Vulkan SDK", ""),
          EnumVariable("macports_clang", "Build using Clang from MacPorts", "no", ("no", "5.0", "devel")),
          BoolVariable("use_ubsan", "Use LLVM/GCC compiler undefined behavior sanitizer (UBSAN)", False),
-@@ -79,7 +119,7 @@ def configure(env: "SConsEnvironment"):
+@@ -79,7 +123,7 @@ def configure(env: "SConsEnvironment"):
          env.Prepend(LINKFLAGS=["-Xlinker", "-no_deduplicate"])
  
      ## Compiler configuration
@@ -99,7 +103,7 @@ index 3c8b1ebee1..1068d2b3e6 100644
      # Save this in environment for use by other modules
      if "OSXCROSS_ROOT" in os.environ:
          env["osxcross"] = True
-@@ -121,8 +161,8 @@ def configure(env: "SConsEnvironment"):
+@@ -121,8 +165,8 @@ def configure(env: "SConsEnvironment"):
              env["CXX"] = "clang++"
  
          detect_darwin_sdk_path("macos", env)
@@ -110,7 +114,7 @@ index 3c8b1ebee1..1068d2b3e6 100644
  
      else:  # osxcross build
          root = os.environ.get("OSXCROSS_ROOT", "")
-@@ -193,36 +233,8 @@ def configure(env: "SConsEnvironment"):
+@@ -193,36 +237,8 @@ def configure(env: "SConsEnvironment"):
  
      env.Prepend(CPPPATH=["#platform/macos"])
      env.Append(CPPDEFINES=["MACOS_ENABLED", "UNIX_ENABLED", "COREAUDIO_ENABLED", "COREMIDI_ENABLED"])

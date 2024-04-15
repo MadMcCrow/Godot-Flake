@@ -83,20 +83,22 @@ in pkgs.darwin.apple_sdk.stdenv.mkDerivation rec {
   # pass values that have whitespaces in them
   postPatch = with pkgs.darwin.apple_sdk.frameworks; ''
   substituteInPlace ./platform/macos/detect.py \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/AppKit"         "-iframework${AppKit}/System/Library/Frameworks" \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/Cocoa"          "-iframework${Cocoa}/System/Library/Frameworks" \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/Carbon"         "-iframework${Carbon}/System/Library/Framework" \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/AudioUnit"      "-iframework${AudioUnit}/System/Library/Framework" \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/CoreAudio"      "-iframework${CoreAudio}/System/Library/Framework" \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/CoreMIDI"       "-iframework${CoreMIDI}/System/Library/Framework" \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/IOKit"          "-iframework${IOKit}/System/Library/Framework" \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/GameController" "-iframework${GameController}/System/Library/Framework" \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/CoreHaptics"    "-iframework${CoreHaptics}/System/Library/Framework" \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/CoreVideo"      "-iframework${CoreVideo}/System/Library/Framework" \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/AVFoundation"   "-iframework${AVFoundation}/System/Library/Framework" \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/CoreMedia"      "-iframework${CoreMedia}/System/Library/Framework" \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/QuartzCore"     "-iframework${QuartzCore}/System/Library/Framework" \
-  --replace "-iframework{MACOS_SDK_PATH}/System/Library/Security"       "-iframework${Security}/System/Library/Framework"
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/AppKit         -iframework${AppKit}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/Foundation     -iframework${Foundation}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/CoreFoundation -iframework${CoreFoundation}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/Cocoa          -iframework${Cocoa}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/Carbon         -iframework${Carbon}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/AudioUnit      -iframework${AudioUnit}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/CoreAudio      -iframework${CoreAudio}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/CoreMIDI       -iframework${CoreMIDI}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/IOKit          -iframework${IOKit}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/GameController -iframework${GameController}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/CoreHaptics    -iframework${CoreHaptics}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/CoreVideo      -iframework${CoreVideo}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/AVFoundation   -iframework${AVFoundation}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/CoreMedia      -iframework${CoreMedia}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/QuartzCore     -iframework${QuartzCore}/Library/Frameworks \
+  --replace -iframework{MACOS_SDK_PATH}/System/Library/Security       -iframework${Security}/Library/Frameworks
   '';
 
   # requirements to" "-iframework${de}/System/Library/Framework" build godot on MacOS
