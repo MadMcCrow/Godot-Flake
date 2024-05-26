@@ -26,9 +26,20 @@
 
       # helper to build for multiple system
       forAllSystems = f: nixpkgs.lib.genAttrs systems f;
+<<<<<<< HEAD
+=======
+      forAllSystemPkgs = f:
+        forAllSystems (system: f (nixpkgs.legacyPackages.${system}));
+
+    in {
+
+      # add build functions
+      #lib = forAllSystemPkgs mkLib;
+>>>>>>> dd0806c (dev: WIP linux godot build)
 
     in rec {
       # template for godot projects :
+<<<<<<< HEAD
       templates.default = {
         path = ./template;
         description = "A simple Godot-Flake project";
@@ -41,6 +52,19 @@
           pkgs = nixpkgs.legacyPackages."${system}";
           inherit inputs;
         }).editor;
+=======
+      templates = {
+        default = {
+          path = ./template;
+          description = "A simple Godot-Flake project";
+          welcomeText = "Let's make nix games !";
+        };
+      };
+
+      # pre-defined godot engine 
+      packages = forAllSystemPkgs (pkgs: rec {
+        godot = import ./godot { inherit pkgs inputs; };
+>>>>>>> dd0806c (dev: WIP linux godot build)
         default = godot;
       });
 

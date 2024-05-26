@@ -3,11 +3,19 @@
     "godot": {
       "flake": false,
       "locked": {
+<<<<<<< HEAD
         "lastModified": 1713098357,
         "narHash": "sha256-et8rtTfcMxDV+k6zr0+2q6d+uMDT7MEekDKpO9bGqkU=",
         "owner": "godotengine",
         "repo": "godot",
         "rev": "d00734053f9cda8ade5e6c3afd86266e6df571c6",
+=======
+        "lastModified": 1716662043,
+        "narHash": "sha256-FcLwEPP0RBfgIHzExLNXTziKKJFgDb6639+JJeE+2m8=",
+        "owner": "godotengine",
+        "repo": "godot",
+        "rev": "be56cab58c056c074d1e02cd0b38641204e39f41",
+>>>>>>> dd0806c (dev: WIP linux godot build)
         "type": "github"
       },
       "original": {
@@ -19,11 +27,19 @@
     "godot-cpp": {
       "flake": false,
       "locked": {
+<<<<<<< HEAD
         "lastModified": 1712860709,
         "narHash": "sha256-LzdF6+hvWuIybbJRVVlxAcIfHR+F/WB3556wBDr1paQ=",
         "owner": "godotengine",
         "repo": "godot-cpp",
         "rev": "4b7661a60a4788cc7d5ce690cf8a5815b0aab511",
+=======
+        "lastModified": 1715964969,
+        "narHash": "sha256-2Aj3CE6l1fzQ050RmGOOHXDfKOVkV4kLvquPpmOb3hc=",
+        "owner": "godotengine",
+        "repo": "godot-cpp",
+        "rev": "b697ba8896e5fd0966274f00798c55a5bfed4e74",
+>>>>>>> dd0806c (dev: WIP linux godot build)
         "type": "github"
       },
       "original": {
@@ -34,11 +50,19 @@
     },
     "nixpkgs": {
       "locked": {
+<<<<<<< HEAD
         "lastModified": 1713042715,
         "narHash": "sha256-RifMwYuKu5v6x6O65msKDTqKkQ9crGwOB7yr20qMEuE=",
         "owner": "nixos",
         "repo": "nixpkgs",
         "rev": "c27f3b6d8e29346af16eecc0e9d54b1071eae27e",
+=======
+        "lastModified": 1716509168,
+        "narHash": "sha256-4zSIhSRRIoEBwjbPm3YiGtbd8HDWzFxJjw5DYSDy1n8=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "bfb7a882678e518398ce9a31a881538679f6f092",
+>>>>>>> dd0806c (dev: WIP linux godot build)
         "type": "github"
       },
       "original": {

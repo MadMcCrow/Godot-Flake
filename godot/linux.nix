@@ -73,7 +73,7 @@ let
       bashInteractive
       patchelf
       gcc
-    ] ++ optionals use_llvm libllvm;
+    ];
 
 in pkgs.stdenv.mkDerivation rec {
   # basic stuff :
