@@ -1,14 +1,13 @@
 # version.nix
 # get the godot version with IFD
-{ inputs, pkgs, ... }:
+{ godot, stdenvNoCC, lib, ... }:
 with builtins;
 let
-  inherit (pkgs.lib) strings attrsets;
+  inherit (lib) strings attrsets;
 
   # get version file from godot itself
-  godotVersionFile = pkgs.stdenvNoCC.mkDerivation {
-    src =
-      builtins.filterSource (n: t: baseNameOf n == "version.py") inputs.godot;
+  godotVersionFile = stdenvNoCC.mkDerivation {
+    src = builtins.filterSource (n: t: baseNameOf n == "version.py") godot;
     name = "godot-version-desc";
     noBuildPhase = true;
     installPhase = "install -D -t $out ./version.py";

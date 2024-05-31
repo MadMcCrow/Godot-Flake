@@ -1,6 +1,6 @@
 # darwin.nix
 # MacOS build Attributes
-{ pkgs, options, version, inputs, ... }:
+{ pkgs, options, version, inputs, ... }: defaultAtts :
 let
   inherit (pkgs.lib.lists) optionals remove;
   inherit (pkgs.lib.strings) concatMapStrings;

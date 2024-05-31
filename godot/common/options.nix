@@ -1,6 +1,6 @@
-{ lib, ... }:
-let
-in {
+# options to use for building godot
+# TODO : allow for customisation
+{ ... }: {
   optimize = "speed";
   lto = "full"; # default is none
   production = "yes"; # godot default is no
